@@ -20,8 +20,11 @@
 		Detector.addGetWebGLMessage();
 
 	var container, stats;
-
 	var camera, controls, scene, renderer;
+
+	var tileSize = 20;
+	var objects = [];
+	var selectedObject;
 
 	init();
 	render();
@@ -35,11 +38,19 @@
 
 	function init() {
 
-		camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 1000 );
-		camera.position.z = 250;
+		camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 2000 );
+		camera.position.x =  camera.position.y = -7 * tileSize;
+		camera.position.z = 200;
+		camera.up.set(0,0,1);
 
 		controls = new THREE.OrbitControls( camera );
 		controls.damping = 0.2;
+
+		controls.maxPolarAngle = 2*Math.PI/5;
+
+		controls.minAzimuthAngle = -Math.PI/2;
+		controls.maxAzimuthAngle = 0;
+
 		controls.addEventListener( 'change', render );
 
 		scene = new THREE.Scene();
@@ -47,24 +58,7 @@
 	    scene.add(axes);
 		scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
 
-		// var geometry = new THREE.CylinderGeometry( 0, 10, 30, 4, 1 );
-		// var material =  new THREE.MeshLambertMaterial( { color:0xffffff, shading: THREE.FlatShading } );
-
-		// for ( var i = 0; i < 500; i ++ ) {
-
-		// 	var mesh = new THREE.Mesh( geometry, material );
-		// 	mesh.position.x = ( Math.random() - 0.5 ) * 1000;
-		// 	mesh.position.y = ( Math.random() - 0.5 ) * 1000;
-		// 	mesh.position.z = ( Math.random() - 0.5 ) * 1000;
-		// 	mesh.updateMatrix();
-		// 	mesh.matrixAutoUpdate = false;
-		// 	scene.add( mesh );
-
-		// }
-		var tileSize = 20;
-		var tileCount = 15;
-
-		var tile = new THREE.PlaneBufferGeometry (tileSize-2, tileSize-2, 5, 5);
+		var tile = new THREE.PlaneBufferGeometry (tileSize*0.9, tileSize*0.9, 10, 10);
 		// var img = new THREE.MeshBasicMaterial({ 
 		 //    map:THREE.ImageUtils.loadTexture('img/woodtile.jpg')
 		 //});
@@ -74,23 +68,63 @@
 		});
 	    // img.map.needsUpdate = true;
 
-	    var offset = -tileCount * tileSize/2;
-	    for(var i=0;i<tileCount;i++)
+	    // var offset = -tileCount * tileSize/2;
+	    for(var i=0;i<13;i++)
 	    {
-	    	for(var j=0; j<tileCount; j++)
-	    	{
-			    if( ((i<6 || i>8) && (j>5 && j<9)  ) || ((i>5 && i<9) && (j<6 || j>8)  ) )
-			    {
-		    		var plane = new THREE.Mesh(tile, material);
-				    // plane.overdraw = true;
-				    plane.position.z = i*tileSize + offset;
-				    plane.position.x = j*tileSize + offset;
-				    plane.rotation.x=Math.PI/2;
-				    scene.add(plane);
+	    	var a,b;
+		    if(i<6)
+		    {
+		    	a = i-7;
+		    	b = 1;
+		    }
+		    else if(i<12)
+		    {
+		    	a = -1;
+		    	b = i-4;
+		    }
+		    else
+		    {
+		    	a=0 ;
+		    	b=7;
+		    }
 
-				    // objects.push(plane);
-			    }
-			}
+		    //Player1 surround
+    		var plane = new THREE.Mesh(tile, material);
+		    plane.position.y = (a) * tileSize ;
+		    plane.position.x = (b) * tileSize;
+		    plane.userData.id=i;
+		    plane.userData.next=i+1;
+		    scene.add(plane);
+		    objects.push(plane);
+
+		    //Player2 surround
+		    var plane = new THREE.Mesh(tile, material);
+		    plane.position.y = (b) * tileSize ;
+		    plane.position.x = (-a) * tileSize;
+		    plane.userData.id=i+13;
+		    plane.userData.next=i+14;
+		    scene.add(plane);
+		    objects.push(plane);
+
+		    //Player3 surround
+		    var plane = new THREE.Mesh(tile, material);
+		    plane.position.y = (-a) * tileSize ;
+		    plane.position.x = (-b) * tileSize;
+		    plane.userData.id=i+26;
+		    plane.userData.next=i+27;
+		    scene.add(plane);
+		    objects.push(plane);
+
+		    var plane = new THREE.Mesh(tile, material);
+		    plane.position.y = (-b) * tileSize ;
+		    plane.position.x = (a) * tileSize;
+		    plane.userData.id=i+39;
+		    if(i<12)
+		    	plane.userData.next=i+40;
+		    else
+			    plane.userData.next=0;
+		    scene.add(plane);
+		    objects.push(plane);
 		}
 
 		loader = new THREE.JSONLoader();
@@ -100,11 +134,11 @@
 
 		light = new THREE.DirectionalLight( 0xffffff );
 		light.position.set( 1, 1, 1 );
-		scene.add( light );
+		// scene.add( light );
 
 		light = new THREE.DirectionalLight( 0x002288 );
 		light.position.set( -1, -1, -1 );
-		scene.add( light );
+		// scene.add( light );
 
 		light = new THREE.AmbientLight( 0x222222 );
 		scene.add( light );
@@ -124,12 +158,40 @@
 		stats.domElement.style.zIndex = 100;
 		document.body.appendChild( stats.domElement );
 
+
+		raycaster = new THREE.Raycaster();
+		mouse = new THREE.Vector2();
+
 		window.addEventListener( 'resize', onWindowResize, false );
+    	document.addEventListener( 'mousedown', onDocumentMouseDown, false );
 
 		animate();
 
 	}
 
+	function onDocumentMouseDown( event ) 
+		{
+			event.preventDefault();
+			mouse.x = ( event.clientX / renderer.domElement.width ) * 2 - 1;
+			mouse.y = - ( event.clientY / renderer.domElement.height ) * 2 + 1;
+
+			raycaster.setFromCamera( mouse, camera );
+	        var intersects = raycaster.intersectObjects( objects );
+	        // Change color if hit block
+	        if ( intersects.length > 0 ) {
+	            // intersects[ 0 ].object.material.color.setHex( Math.random() * 0xffffff );
+	            // if(selectedObject)
+	            // {
+	            	// console.log(selectedObject.id, ' clicked');
+	            // }
+	            selectedObject = intersects[0].object;
+	            console.log(selectedObject.userData.id, '>',selectedObject.userData.next);
+	            // selectedObject.position.z = 20;
+	            render();
+	        }
+	    }
+
+	// controls.addEventListener( 'change', render );
 	function onWindowResize() {
 
 		camera.aspect = window.innerWidth / window.innerHeight;
