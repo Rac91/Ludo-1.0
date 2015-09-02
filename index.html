@@ -6,6 +6,7 @@
 	</style>
 </head>
 <body>
+<button style= "margin:50" onclick=rollDice()>Roll dice</button>
 </body>
 <script src="three.min.js"></script>
 
@@ -25,15 +26,56 @@
 	var tileSize = 20;
 	var objects = [];
 	var selectedObject;
+	var currentIndex = 0,endPoint=0,startPoint=0;
+	var cube;
 
 	init();
 	render();
+
+	var deltaX, deltaY, deltaRotate,
+		startTime, startX, startY, startRotate,
+		moving = false;
+	var diceValue;
+	var transitionTime = 200;
 
 	function animate() {
 
 		requestAnimationFrame(animate);
 		controls.update();
+		if(moving)
+		{
+			timeGap = new Date() - startTime;
+			fraction = timeGap/transitionTime;
+			if (fraction > 1)
+			{
+				fraction = 1;
+				moving = false;
+			}
+			cube.position.x = startX + deltaX * fraction;
+			cube.position.y = startY + deltaY * fraction;
+			cube.rotation.z = startRotate + deltaRotate * fraction;
+		}
+		render();
+	}
 
+	
+	function moveCoin(diceValue){
+			
+			startPoint=endPoint;
+			currentTile = scene.getObjectByName(startPoint);
+			endPoint = startPoint + diceValue;
+			nextTile = scene.getObjectByName(endPoint);
+			
+			startX = currentTile.position.x;
+			startY = currentTile.position.y;
+			startRotate = currentTile.rotation.z;
+
+			deltaX = nextTile.position.x - startX;
+			deltaY = nextTile.position.y - startY;
+			deltaRotate = nextTile.rotation.z - startRotate;
+
+			moving = true;
+			startTime = new Date();
 	}
 
 	function init() {
@@ -59,9 +101,10 @@
 		scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
 
 		var tile = new THREE.PlaneBufferGeometry (tileSize*0.9, tileSize*0.9, 10, 10);
-		// var img = new THREE.MeshBasicMaterial({ 
-		 //    map:THREE.ImageUtils.loadTexture('img/woodtile.jpg')
-		 //});
+		var img = new THREE.MeshBasicMaterial({ 
+		    map:THREE.ImageUtils.loadTexture('img/woodtile.jpg')
+		 });
+		img.map.needsUpdate = true;
 	    var material = new THREE.MeshPhongMaterial({
 		  color: 0xdddddd, 
 		  wireframe: true
@@ -69,6 +112,7 @@
 	    // img.map.needsUpdate = true;
 
 	    // var offset = -tileCount * tileSize/2;
+	    var parallelDirection;
 	    for(var i=0;i<13;i++)
 	    {
 	    	var a,b;
@@ -76,24 +120,28 @@
 		    {
 		    	a = i-7;
 		    	b = 1;
+		    	parallelDirection = 0;
 		    }
 		    else if(i<12)
 		    {
 		    	a = -1;
 		    	b = i-4;
+		    	parallelDirection = -Math.PI/2;
 		    }
 		    else
 		    {
 		    	a=0 ;
 		    	b=7;
+		    	parallelDirection = 0;
 		    }
 
 		    //Player1 surround
     		var plane = new THREE.Mesh(tile, material);
 		    plane.position.y = (a) * tileSize ;
 		    plane.position.x = (b) * tileSize;
-		    plane.userData.id=i;
+		    plane.name = i;
 		    plane.userData.next=i+1;
+		    plane.rotation.z = parallelDirection;
 		    scene.add(plane);
 		    objects.push(plane);
 
@@ -101,8 +149,9 @@
 		    var plane = new THREE.Mesh(tile, material);
 		    plane.position.y = (b) * tileSize ;
 		    plane.position.x = (-a) * tileSize;
-		    plane.userData.id=i+13;
+		    plane.name = i+13;
 		    plane.userData.next=i+14;
+		    plane.rotation.z = parallelDirection+Math.PI/2;
 		    scene.add(plane);
 		    objects.push(plane);
 
@@ -110,22 +159,55 @@
 		    var plane = new THREE.Mesh(tile, material);
 		    plane.position.y = (-a) * tileSize ;
 		    plane.position.x = (-b) * tileSize;
-		    plane.userData.id=i+26;
+		    plane.name = i+26;
 		    plane.userData.next=i+27;
+		    plane.rotation.z = parallelDirection+Math.PI;
 		    scene.add(plane);
 		    objects.push(plane);
 
 		    var plane = new THREE.Mesh(tile, material);
 		    plane.position.y = (-b) * tileSize ;
 		    plane.position.x = (a) * tileSize;
-		    plane.userData.id=i+39;
+		    plane.name = i+39;
+		    plane.rotation.z = parallelDirection+3*Math.PI/2;
 		    if(i<12)
 		    	plane.userData.next=i+40;
 		    else
+		    {
 			    plane.userData.next=0;
+		    }
 		    scene.add(plane);
 		    objects.push(plane);
 		}
+
+
+		firstObject = objects[0];
+
+	    /// dummy object
+		var geometry = new THREE.BoxGeometry( 10, 20, 10 );
+		var material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
+		cube = new THREE.Mesh( geometry, material );
+		cube.position.copy(objects[0].position)
+		cube.position.z = 10;
+		cube.name = 'c1'
+		scene.add( cube );
+
+		// var diceValue, nextIndex;
+		// currentIndex = firstObject.userData.id;
+		// diceValue = Math.floor(Math.random() * 6) + 1  ;
+		// nextIndex = currentIndex + diceValue;
+		// startX = objects[currentIndex].position.x;
+		// for(var index=currentIndex; index<=nextIndex; index++)
+		// {
+
+		// 	nextPos = scene.getObjectByName('c1').position;
+		// 	cube.position.x = nextPos.x;
+		// 	cube.position.y = nextPos.y;
+		// 	animate();
+		// }
+		
+
+		
 
 		loader = new THREE.JSONLoader();
 		// loader.load('model.json', function(geo, mat){
@@ -208,6 +290,12 @@
 		renderer.render( scene, camera );
 		stats.update();
 
+	}
+
+	function rollDice()
+	{
+		diceValue = Math.floor(Math.random() * 6) + 1  ;
+		moveCoin(diceValue);
 	}
 
 
