@@ -59,9 +59,11 @@
 	}
 
 	var objectLoader;
-	var	toLoad = { 'coin': ['texturedDabba.json', 'brick.jpg'] },
+	var	toLoad = { 'coin': ['texturedDabba.json', 'brick.jpg'],
+				   'fence': ['fence.json', 'bark.jpg', 'wood.jpg', 'woodLight.jpg'] },
 		toLoadCount = Object.keys(toLoad).length;
 	var loadedObjects={},
+		loadedTextures = {},
 		loadedCount=0;
 
 	loadObjects();
@@ -75,23 +77,40 @@
 		for(var i=0;i<toLoadCount;i++)
 		{
 			key = keys[i];
-			loadObject(key, toLoad[key][0], toLoad[key][1] );
+			images = toLoad[key];
+			for(var j=1; j<images.length;j++)
+				loadTextures(key, images[j]);
 		}
 	}
 
-	function loadObject(type, source, image)
+	function loadTextures(key, image)
 	{
-		texture = THREE.ImageUtils.loadTexture(image, THREE.UVMapping, function (args) {
-			// tex = args;
-			objectLoader.load( source, function(geometry, materials) {
-				materials[0].map = texture;
-				var material = new THREE.MeshFaceMaterial( materials );
-				// loadedMesh = new THREE.Mesh( geometry,material);
-				loadedObjects[type] = [geometry, material];
-				loadedCount++;
-				if (loadedCount===toLoadCount)				
-					init();
-			});
+		THREE.ImageUtils.loadTexture(image, THREE.UVMapping, function (texture) {
+			if(!loadedTextures[key])
+				loadedTextures[key] = {};
+			loadedTextures[key][image] = texture;
+			if(Object.keys(loadedTextures[key]).length+1===toLoad[key].length)
+				loadObject(key);
+		});
+	}
+
+	function loadObject(key)
+	{
+		source = toLoad[key][0];
+		objectLoader.load( source, function(geometry, materials) {
+			textures = loadedTextures[key];
+			for(var i=0;i<materials.length;i++)
+			{
+				texName = materials[i].name;
+				if (textures[texName])
+					materials[i].map = textures[texName];
+			}
+			var material = new THREE.MeshFaceMaterial( materials );
+			// loadedMesh = new THREE.Mesh( geometry,material);
+			loadedObjects[key] = [geometry, material];
+			loadedCount++;
+			if (loadedCount===toLoadCount)				
+				init();
 		});
 	}
 
@@ -281,6 +300,10 @@
 				objects.push( cube );
 			}
 
+			var geometry = loadedObjects['fence'][0];
+			var material = loadedObjects['fence'][1];
+			fence = new THREE.Mesh( geometry, material );
+			scene.add( fence );
 	}
 
 	function onDocumentMouseDown( event ) 
