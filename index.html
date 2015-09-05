@@ -1,12 +1,14 @@
 <head>
 	<title>All a-board</title>
 	<style>
-		body { margin: 0; }
+		body { width:100%; margin: 0; }
 		/*canvas { width: 100%; height: 100% }*/
 	</style>
 </head>
 <body>
-<button style= "margin:50" onclick=rollDice()>Roll dice</button>
+<div style:"width: 100%;">
+	<button style= "margin:0 auto; display: block;" onclick=rollDice()>Roll dice</button>
+</div>
 </body>
 <script src="three.min.js"></script>
 
@@ -30,6 +32,7 @@
 	var cube;
 
 	init();
+	initUser();
 	render();
 
 	var deltaX, deltaY, deltaRotate,
@@ -140,6 +143,8 @@
 		    plane.position.y = (a) * tileSize ;
 		    plane.position.x = (b) * tileSize;
 		    plane.name = i;
+		    plane.userData.move =false;
+		    plane.userData.next=i;
 		    plane.userData.next=i+1;
 		    plane.rotation.z = parallelDirection;
 		    scene.add(plane);
@@ -150,6 +155,8 @@
 		    plane.position.y = (b) * tileSize ;
 		    plane.position.x = (-a) * tileSize;
 		    plane.name = i+13;
+		    plane.userData.move =false;
+		    plane.userData.next=i+13;
 		    plane.userData.next=i+14;
 		    plane.rotation.z = parallelDirection+Math.PI/2;
 		    scene.add(plane);
@@ -160,6 +167,8 @@
 		    plane.position.y = (-a) * tileSize ;
 		    plane.position.x = (-b) * tileSize;
 		    plane.name = i+26;
+		    plane.userData.move =false;
+		    plane.userData.next=i+26;
 		    plane.userData.next=i+27;
 		    plane.rotation.z = parallelDirection+Math.PI;
 		    scene.add(plane);
@@ -169,7 +178,9 @@
 		    plane.position.y = (-b) * tileSize ;
 		    plane.position.x = (a) * tileSize;
 		    plane.name = i+39;
+		    plane.userData.next=i+39;
 		    plane.rotation.z = parallelDirection+3*Math.PI/2;
+		    plane.userData.move =false;
 		    if(i<12)
 		    	plane.userData.next=i+40;
 		    else
@@ -179,18 +190,13 @@
 		    scene.add(plane);
 		    objects.push(plane);
 		}
-
+ 
 
 		firstObject = objects[0];
 
+
 	    /// dummy object
-		var geometry = new THREE.BoxGeometry( 10, 20, 10 );
-		var material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
-		cube = new THREE.Mesh( geometry, material );
-		cube.position.copy(objects[0].position)
-		cube.position.z = 10;
-		cube.name = 'c1'
-		scene.add( cube );
+		
 
 		// var diceValue, nextIndex;
 		// currentIndex = firstObject.userData.id;
@@ -209,8 +215,8 @@
 
 		
 
-		loader = new THREE.JSONLoader();
-		// loader.load('model.json', function(geo, mat){
+		// loader = new THREE.ObjectLoader();
+		// loader.load('textureBox.json', function(geo, mat){
 		// 	console.log(geo,mat);
 		// });
 
@@ -251,6 +257,45 @@
 
 	}
 
+	function initUser(){
+		var geometry = new THREE.BoxGeometry( 15, 15, 15 );
+		var material = new THREE.MeshPhongMaterial( {color: 0x00ff00} );
+		var a = 75;
+		var b = 100;
+		xSign      = [-1, -1, 1, 1];
+		ySign	   = [-1, 1, 1,-1];
+		
+		for(var i=0; i<4;i++)
+			{   
+				x=xSign[i];
+				y=ySign[i];
+				cube = new THREE.Mesh( geometry, material );
+				cube.position.copy( new THREE.Vector3( a*x, b*y, 10 ));
+				cube.name = 'p'+i + 'c1';
+				scene.add( cube );
+				objects.push( cube );
+
+				cube = new THREE.Mesh( geometry, material );
+				cube.position.copy(new THREE.Vector3( b*x, a*y, 10 ));
+				cube.name = 'p'+i + 'c2';
+				scene.add( cube );
+				objects.push( cube );
+
+				cube = new THREE.Mesh( geometry, material );
+				cube.position.copy(new THREE.Vector3( a*x, a*y, 10 ));
+				cube.name = 'p'+i + 'c3';
+				scene.add( cube );
+				objects.push( cube );
+
+				cube = new THREE.Mesh( geometry, material );
+				cube.position.copy(new THREE.Vector3( b*x, b*y, 10 ));
+				cube.name = 'p'+i + 'c4';
+				scene.add( cube );
+				objects.push( cube );
+			}
+
+	}
+
 	function onDocumentMouseDown( event ) 
 		{
 			event.preventDefault();
@@ -267,7 +312,7 @@
 	            	// console.log(selectedObject.id, ' clicked');
 	            // }
 	            selectedObject = intersects[0].object;
-	            console.log(selectedObject.userData.id, '>',selectedObject.userData.next);
+	            console.log(selectedObject.id, '>',selectedObject.name);
 	            // selectedObject.position.z = 20;
 	            render();
 	        }
