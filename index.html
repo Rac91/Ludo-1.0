@@ -29,60 +29,74 @@
 	var objects = [];
 	var selectedObject;
 	var currentIndex = 0,endPoint=0,startPoint=0;
-	var cube;
 
-	init();
-	initUser();
-	render();
+	// init();
+	// initUser();
 
 	var deltaX, deltaY, deltaRotate,
 		startTime, startX, startY, startRotate,
 		moving = false;
 	var diceValue;
 	var transitionTime = 200;
-
-	function animate() {
-
-		requestAnimationFrame(animate);
-		controls.update();
-		if(moving)
-		{
-			timeGap = new Date() - startTime;
-			fraction = timeGap/transitionTime;
-			if (fraction > 1)
-			{
-				fraction = 1;
-				moving = false;
-			}
-			cube.position.x = startX + deltaX * fraction;
-			cube.position.y = startY + deltaY * fraction;
-			cube.rotation.z = startRotate + deltaRotate * fraction;
-		}
-		render();
-	}
-
 	
-	function moveCoin(diceValue){
-			
-			startPoint=endPoint;
-			currentTile = scene.getObjectByName(startPoint);
-			endPoint = startPoint + diceValue;
-			nextTile = scene.getObjectByName(endPoint);
-			
-			startX = currentTile.position.x;
-			startY = currentTile.position.y;
-			startRotate = currentTile.rotation.z;
+	function moveCoin(diceValue)
+	{
+		startPoint=endPoint;
+		currentTile = scene.getObjectByName(startPoint);
+		endPoint = startPoint + diceValue;
+		nextTile = scene.getObjectByName(endPoint);
+		
+		startX = currentTile.position.x;
+		startY = currentTile.position.y;
+		startRotate = currentTile.rotation.z;
 
-			deltaX = nextTile.position.x - startX;
-			deltaY = nextTile.position.y - startY;
-			deltaRotate = nextTile.rotation.z - startRotate;
+		deltaX = nextTile.position.x - startX;
+		deltaY = nextTile.position.y - startY;
+		deltaRotate = nextTile.rotation.z - startRotate;
 
-			moving = true;
-			startTime = new Date();
+		moving = true;
+		startTime = new Date();
 	}
 
-	function init() {
+	var objectLoader;
+	var	toLoad = { 'coin': ['texturedDabba.json', 'brick.jpg'] },
+		toLoadCount = Object.keys(toLoad).length;
+	var loadedObjects={},
+		loadedCount=0;
 
+	loadObjects();
+
+	function loadObjects()
+	{
+		objectLoader = new THREE.JSONLoader();
+		objectLoader.showStatus = true;
+
+		keys = Object.keys(toLoad);
+		for(var i=0;i<toLoadCount;i++)
+		{
+			key = keys[i];
+			loadObject(key, toLoad[key][0], toLoad[key][1] );
+		}
+	}
+
+	function loadObject(type, source, image)
+	{
+		texture = THREE.ImageUtils.loadTexture(image, THREE.UVMapping, function (args) {
+			// tex = args;
+			objectLoader.load( source, function(geometry, materials) {
+				materials[0].map = texture;
+				var material = new THREE.MeshFaceMaterial( materials );
+				// loadedMesh = new THREE.Mesh( geometry,material);
+				loadedObjects[type] = [geometry, material];
+				loadedCount++;
+				if (loadedCount===toLoadCount)				
+					init();
+			});
+		});
+	}
+
+	function init() 
+	{
 		camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 2000 );
 		camera.position.x =  camera.position.y = -7 * tileSize;
 		camera.position.z = 200;
@@ -104,10 +118,10 @@
 		scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
 
 		var tile = new THREE.PlaneBufferGeometry (tileSize*0.9, tileSize*0.9, 10, 10);
-		var img = new THREE.MeshBasicMaterial({ 
-		    map:THREE.ImageUtils.loadTexture('img/woodtile.jpg')
-		 });
-		img.map.needsUpdate = true;
+		// var img = new THREE.MeshBasicMaterial({ 
+		//     map:THREE.ImageUtils.loadTexture('img/woodtile.jpg')
+		//  });
+		// img.map.needsUpdate = true;
 	    var material = new THREE.MeshPhongMaterial({
 		  color: 0xdddddd, 
 		  wireframe: true
@@ -190,35 +204,6 @@
 		    scene.add(plane);
 		    objects.push(plane);
 		}
- 
-
-		firstObject = objects[0];
-
-
-	    /// dummy object
-		
-
-		// var diceValue, nextIndex;
-		// currentIndex = firstObject.userData.id;
-		// diceValue = Math.floor(Math.random() * 6) + 1  ;
-		// nextIndex = currentIndex + diceValue;
-		// startX = objects[currentIndex].position.x;
-		// for(var index=currentIndex; index<=nextIndex; index++)
-		// {
-
-		// 	nextPos = scene.getObjectByName('c1').position;
-		// 	cube.position.x = nextPos.x;
-		// 	cube.position.y = nextPos.y;
-		// 	animate();
-		// }
-		
-
-		
-
-		// loader = new THREE.ObjectLoader();
-		// loader.load('textureBox.json', function(geo, mat){
-		// 	console.log(geo,mat);
-		// });
 
 		light = new THREE.DirectionalLight( 0xffffff );
 		light.position.set( 1, 1, 1 );
@@ -228,7 +213,7 @@
 		light.position.set( -1, -1, -1 );
 		// scene.add( light );
 
-		light = new THREE.AmbientLight( 0x222222 );
+		light = new THREE.AmbientLight( 0xdddddd );
 		scene.add( light );
 
 		// renderer
@@ -253,17 +238,19 @@
 		window.addEventListener( 'resize', onWindowResize, false );
     	document.addEventListener( 'mousedown', onDocumentMouseDown, false );
 
+    	initUser()
 		animate();
-
 	}
 
-	function initUser(){
-		var geometry = new THREE.BoxGeometry( 15, 15, 15 );
-		var material = new THREE.MeshPhongMaterial( {color: 0x00ff00} );
+	function initUser()
+	{
+		var geometry = loadedObjects['coin'][0];
+		var material = loadedObjects['coin'][1];
+
 		var a = 75;
 		var b = 100;
-		xSign      = [-1, -1, 1, 1];
-		ySign	   = [-1, 1, 1,-1];
+		xSign = [-1, -1, 1, 1];
+		ySign = [-1, 1, 1,-1];
 		
 		for(var i=0; i<4;i++)
 			{   
@@ -330,6 +317,26 @@
 
 	}
 
+	function animate() 
+	{
+		requestAnimationFrame(animate);
+		controls.update();
+		if(moving)
+		{
+			timeGap = new Date() - startTime;
+			fraction = timeGap/transitionTime;
+			if (fraction > 1)
+			{
+				fraction = 1;
+				moving = false;
+			}
+			cube.position.x = startX + deltaX * fraction;
+			cube.position.y = startY + deltaY * fraction;
+			cube.rotation.z = startRotate + deltaRotate * fraction;
+		}
+		render();
+	}
+
 	function render() {
 
 		renderer.render( scene, camera );
@@ -342,6 +349,5 @@
 		diceValue = Math.floor(Math.random() * 6) + 1  ;
 		moveCoin(diceValue);
 	}
-
 
 </script>
