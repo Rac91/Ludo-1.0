@@ -29,6 +29,8 @@
 	var objects = [];
 	var selectedObject;
 	var currentIndex = 0,endPoint=0,startPoint=0;
+	var cube, movingCoin,nextTIle;
+	var user = {};
 
 	// init();
 	// initUser();
@@ -38,17 +40,42 @@
 		moving = false;
 	var diceValue;
 	var transitionTime = 200;
+	var boardState = 0;
+	var whoIsplaying = 'PLAYER1';
+
+	function animate() {
+
+		requestAnimationFrame(animate);
+		controls.update();
+		if(moving)
+		{
+			timeGap = new Date() - startTime;
+			fraction = timeGap/transitionTime;
+			if (fraction > 1)
+			{
+				fraction = 1;
+				moving = false;
+			}
+			cube.position.x = startX + deltaX * fraction;
+			cube.position.y = startY + deltaY * fraction;
+			cube.rotation.z = startRotate + deltaRotate * fraction;
+		}
+		render();
+	}
+
 	
-	function moveCoin(diceValue)
-	{
-		startPoint=endPoint;
-		currentTile = scene.getObjectByName(startPoint);
-		endPoint = startPoint + diceValue;
-		nextTile = scene.getObjectByName(endPoint);
-		
-		startX = currentTile.position.x;
-		startY = currentTile.position.y;
-		startRotate = currentTile.rotation.z;
+	function moveCoin(movingCoin,nextTile, moveBy){
+
+		    if(movingCoin.userData.position==-1)
+		    	movingCoin.position.copy(scene.getObjectByName(objects[movingCoin.userData.start].name).position)
+		    else {
+		    	//startPoint=endPoint;
+				currentTile = movingCoin;
+				nextTile = scene.getObjectByName(movingCoin.userData.id + moveBy);
+				
+				startX = currentTile.position.x;
+				startY = currentTile.position.y;
+				startRotate = currentTile.rotation.z;
 
 		deltaX = nextTile.position.x - startX;
 		deltaY = nextTile.position.y - startY;
@@ -175,9 +202,9 @@
     		var plane = new THREE.Mesh(tile, material);
 		    plane.position.y = (a) * tileSize ;
 		    plane.position.x = (b) * tileSize;
-		    plane.name = i;
+		    plane.name = 'TILE' + i;
 		    plane.userData.move =false;
-		    plane.userData.next=i;
+		    plane.userData.id=i;
 		    plane.userData.next=i+1;
 		    plane.rotation.z = parallelDirection;
 		    scene.add(plane);
@@ -187,9 +214,9 @@
 		    var plane = new THREE.Mesh(tile, material);
 		    plane.position.y = (b) * tileSize ;
 		    plane.position.x = (-a) * tileSize;
-		    plane.name = i+13;
+		    plane.name = 'TILE' + (i + 13);
 		    plane.userData.move =false;
-		    plane.userData.next=i+13;
+		    plane.userData.id=i+13;
 		    plane.userData.next=i+14;
 		    plane.rotation.z = parallelDirection+Math.PI/2;
 		    scene.add(plane);
@@ -199,9 +226,9 @@
 		    var plane = new THREE.Mesh(tile, material);
 		    plane.position.y = (-a) * tileSize ;
 		    plane.position.x = (-b) * tileSize;
-		    plane.name = i+26;
+		    plane.name = 'TILE' + (i + 26);
 		    plane.userData.move =false;
-		    plane.userData.next=i+26;
+		    plane.userData.id=i+26;
 		    plane.userData.next=i+27;
 		    plane.rotation.z = parallelDirection+Math.PI;
 		    scene.add(plane);
@@ -210,8 +237,8 @@
 		    var plane = new THREE.Mesh(tile, material);
 		    plane.position.y = (-b) * tileSize ;
 		    plane.position.x = (a) * tileSize;
-		    plane.name = i+39;
-		    plane.userData.next=i+39;
+		    plane.name = 'TILE' + (i + 39);
+		    plane.userData.id=i+39;
 		    plane.rotation.z = parallelDirection+3*Math.PI/2;
 		    plane.userData.move =false;
 		    if(i<12)
@@ -256,6 +283,7 @@
 
 		window.addEventListener( 'resize', onWindowResize, false );
     	document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+    	document.addEventListener( 'click', clickBoard, false );
 
     	initUser()
 		animate();
@@ -273,38 +301,111 @@
 		
 		for(var i=0; i<4;i++)
 			{   
+				//User profile
+				var coins = [];
+				var playerDict = {};
+
+				//initilize coins
 				x=xSign[i];
 				y=ySign[i];
 				cube = new THREE.Mesh( geometry, material );
 				cube.position.copy( new THREE.Vector3( a*x, b*y, 10 ));
-				cube.name = 'p'+i + 'c1';
+				cube.name = 'PLAYER'+ (i+1) + 'COIN1';
+				cube.userData.position = -1;
+				cube.userData.dice = 0;
+				cube.userData.start = i*13;
 				scene.add( cube );
 				objects.push( cube );
+				coins.push(cube);
 
 				cube = new THREE.Mesh( geometry, material );
 				cube.position.copy(new THREE.Vector3( b*x, a*y, 10 ));
-				cube.name = 'p'+i + 'c2';
+				cube.name = 'PLAYER'+ (i+1) + 'COIN2';
+				cube.userData.position = -1;
+				cube.userData.dice = 0;
+				cube.userData.start = i*13;
 				scene.add( cube );
 				objects.push( cube );
+				coins.push(cube);
 
 				cube = new THREE.Mesh( geometry, material );
 				cube.position.copy(new THREE.Vector3( a*x, a*y, 10 ));
-				cube.name = 'p'+i + 'c3';
+				cube.name = 'PLAYER'+ (i+1) + 'COIN3';
+				cube.userData.position = -1;
+				cube.userData.start = i*13;
+				cube.userData.dice = 0;
 				scene.add( cube );
 				objects.push( cube );
+				coins.push(cube);
 
 				cube = new THREE.Mesh( geometry, material );
 				cube.position.copy(new THREE.Vector3( b*x, b*y, 10 ));
-				cube.name = 'p'+i + 'c4';
+				cube.name = 'PLAYER'+ (i+1) + 'COIN4';
+				cube.userData.position = -1;
+				cube.userData.dice = 0;
+				cube.userData.start = i*13;
 				scene.add( cube );
 				objects.push( cube );
+				coins.push(cube);
+
+				playerDict["coins"]   = coins;
+				playerDict["dice"] = 0; 
+				user['PLAYER' + (i + 1)] = playerDict;
+				user['remaining'] = 0;
+				user['active']    = false;
 			}
 
-			var geometry = loadedObjects['fence'][0];
-			var material = loadedObjects['fence'][1];
-			fence = new THREE.Mesh( geometry, material );
-			scene.add( fence );
 	}
+
+    function clickBoard()
+    {	
+    	var playerObject = user[whoIsplaying];
+    	if(boardState == 0)
+    	{
+    		remaining = diceValue = playerObject['dice'] = Math.floor(Math.random() * 6) + 1  ;
+    		boardState = 1;
+    	}
+    	else if(boardState == 1)
+    	{
+    		if (selectedObject.name.indexOf(whoIsplaying)!= -1)
+    		{
+    			if(selectedObject.userData.position == -1)
+    			{
+    				//if(diceValue == 1 || diceValue ==6)
+    				if(diceValue>0)
+    				{
+    					moveCoin(selectedObject, 0);
+    					selectedObject.userData.position = 0;
+    					if(diceValue == 6)
+    						boardState = 0;
+    				}
+    			}
+    			else
+    			{
+    				//highlightTiles();
+    				movingCoin = selectedObject;
+    			}
+    			boardState = 2;
+    		}
+    	}
+    	else if(boardState == 2)
+    		{
+    			if((selectedObject.name).indexOf('TILE') != -1)
+    			{
+    				moveCoinBy = movingCoin.userData.position - selectedObject.userData.position;
+    				movingCoin.userData.position += moveCoinBy;
+    				user['remaining'] = diceValue ;
+    				if(user['remaining'] > 0)
+    				{
+    					moveCoin(movingCoin, moveCoinBy);
+    					boardState = 1;
+    				}
+    				else if(diceValue == 6)
+    					boardState = 0;
+    			}
+    			boardState = 0;
+    		}
+    }
 
 	function onDocumentMouseDown( event ) 
 		{
@@ -340,26 +441,6 @@
 
 	}
 
-	function animate() 
-	{
-		requestAnimationFrame(animate);
-		controls.update();
-		if(moving)
-		{
-			timeGap = new Date() - startTime;
-			fraction = timeGap/transitionTime;
-			if (fraction > 1)
-			{
-				fraction = 1;
-				moving = false;
-			}
-			cube.position.x = startX + deltaX * fraction;
-			cube.position.y = startY + deltaY * fraction;
-			cube.rotation.z = startRotate + deltaRotate * fraction;
-		}
-		render();
-	}
-
 	function render() {
 
 		renderer.render( scene, camera );
@@ -369,8 +450,9 @@
 
 	function rollDice()
 	{
-		diceValue = Math.floor(Math.random() * 6) + 1  ;
-		moveCoin(diceValue);
+		//moveCoin(diceValue);
+		whoIsplaying ='PLAYER1';
+		//clickBoard();
 	}
 
 </script>
