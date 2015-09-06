@@ -1,0 +1,88 @@
+body
+{ 
+	width:100%; 
+	margin: 0; 
+	font-family: 'Segoe UI', sans-serif;
+}
+#login, #scene 
+{
+	display: none;
+	position: absolute;
+	height:100%;
+	width: 80%;
+}
+#login 
+{
+	display: block;
+}
+#serverStats
+{
+    float: right;
+    height: 100%;
+    width: 20%;
+	/*max-width: 400px;*/
+	min-width: 250px;
+}
+.fill
+{
+	width:100%;
+}
+#title
+{
+	height: 4%;
+	text-align: center;
+}
+#users
+{
+	height: 90%;
+	border-left: 1px solid #999999;
+}
+.floatMiddle
+{
+	width:90%;
+	margin:0 auto;
+	border-bottom: 1px solid #999999;
+}
+#noUsers
+{
+	text-align: center;
+}
+.userEntry
+{
+	width: 100%;
+	height:10px;
+}
+button, input
+{
+    display: block;
+    margin: 3px auto;
+}
+input[type="text"] 
+{
+	display: block;
+  	font-family: 'Segoe UI', sans serif;
+  	appearance: none;
+  	box-shadow: none;
+  	border-radius: none;
+	padding: 10px;
+	border: none;
+	border-bottom: solid 2px #a9a9a9;
+	transition: border 0.3s;
+}
+input[type="text"]:focus
+{
+	outline:none;
+	border-bottom: solid 2px #949494;
+}
+button
+{
+	color: #ffffff;
+	background: #a9a9a9;
+	text-decoration: none;
+	border: none;
+	padding: 5px 10px;
+}
+button:hover 
+{
+  	background: #969696;
+}
