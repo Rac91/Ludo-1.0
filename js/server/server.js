@@ -1,21 +1,34 @@
 var express = require('express');
-// var bodyparser = require('body-parser');
+var bodyparser = require('body-parser');
 var router = express.Router();
 
 app = express();
-app.use(express.static(__dirname));
+app.use(express.static(__dirname+'/../../.'));
 var Board = require('./board.js');
 
 
 var server = app.listen(process.env.PORT || 7896);
 var io = require('socket.io').listen(server);
 
-// router.use(bodyparser.urlencoded({ extended: true }));
+router.use(bodyparser.urlencoded({ extended: true }));
 
 app.use('/', router); 
 
 router.get('/',function(req,res){
     res.sendFile('index.html', { root: __dirname});
+});
+
+router.post('/register',function(req,res){
+    var username = req.body['user'];
+    if(username)
+    {
+    	if (Object.keys(users).indexOf(username)==-1)
+    		return res.sendStatus(200);;
+    	else	
+    		return res.status(400).send({'error': 'username already in use'});
+    }
+    else 
+    	return res.status(400).send({'error': 'No username send'});
 });
 
 function generateId()
@@ -83,7 +96,7 @@ io.on('connection', function(socket){
 		}
 		else
 		{
-			socket.broadcast.emit('userReady', socket.username );
+			socket.to('registered').broadcast.emit('userReady', socket.username );
 		}
 	});
 	
@@ -96,7 +109,7 @@ io.on('connection', function(socket){
 	      	for(var i=0;i<queuedUsers.length;i++)
 	      	if(queuedUsers[i].username==username)
 	      		queuedUsers.splice(i,1);
-	      	socket.broadcast.emit('deregister', username);
+	      	socket.to('registered').broadcast.emit('deregister', username);
 	    }
 	    else
 	    	console.log( socket.id, ' just left without a word.');

@@ -18,6 +18,10 @@ socket.on('failure', function(msg){
 	alert(msg);
 });
 
+socket.on('disconnect', function () {
+	alert('You got disconnected from the server');
+});
+
 function addUser(u)
 {
 	div = document.createElement('div');
@@ -25,12 +29,15 @@ function addUser(u)
 	div.innerHTML = u;
 	userList.appendChild( div );
 }
-
-function register()
+function getUserName()
 {
 	username = document.getElementById('username').value;
 	if(username)
-		socket.emit('register', username);
+		register(username)
+}
+function register(u)
+{
+	socket.emit('register', u);
 }
 
-document.getElementById('register').addEventListener('click', register);
+document.getElementById('register').addEventListener('click', getUserName);
