@@ -9,19 +9,42 @@ body
 	display: none;
 	position: absolute;
 	height:100%;
-	width: 80%;
+	background-color: #eee;
+	width: 100%;
 }
 #login 
 {
 	display: block;
 }
+#userAuth
+{
+	width: 20%;
+	margin:20% 20%;
+}
+
 #serverStats
 {
-    float: right;
+    right: 0;
     height: 100%;
-    width: 20%;
+
 	/*max-width: 400px;*/
-	min-width: 250px;
+	background-color: #330066;
+	width: 250px;
+	position: absolute;
+}
+#readyToPlay
+{
+	margin-left: 5%;
+	padding: 12px;
+	font-size: 14px;
+	font-weight: bold;
+	text-align: center;
+	width: 90%;
+	bottom: 10;
+	color: #fff;
+	background: #00CC33;
+	border: 2px solid white;
+	position: absolute;
 }
 .fill
 {
@@ -35,7 +58,6 @@ body
 #users
 {
 	height: 90%;
-	border-left: 1px solid #999999;
 }
 .floatMiddle
 {
@@ -52,6 +74,31 @@ body
 	width: 100%;
 	height:10px;
 }
+.user
+{
+	width: 100%;
+	max-height: 40px;
+}
+.statusWrap
+{
+	width: 15%;
+	float: left;
+}
+.status
+{
+	margin: 0 auto;
+	width: 14px;
+	height: 14px;
+	border-radius: 7px;
+	-webkit-border-radius: 7px;
+	-moz-border-radius: 7px;
+	background-color: #444;
+}
+.name
+{
+	width: 85%;
+}
+
 button, input
 {
     display: block;
@@ -72,8 +119,14 @@ input[type="text"]
 input[type="text"]:focus
 {
 	outline:none;
-	border-bottom: solid 2px #949494;
+	border-bottom: solid 2px #555;
 }
+input::-webkit-input-placeholder, input::-moz-placeholder, input:-ms-input-placeholder, input:-moz-placeholder 
+{ 
+	font-size: 12pt; 
+	color: #CC0000; 
+}
+
 button
 {
 	color: #ffffff;
