@@ -1,11 +1,12 @@
 <head>
 	<title>All a-board</title>
 	<link rel="stylesheet" type="text/css" href="css/style.css"></style>
+	<link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
 </head>
 <body>
 <div id="login" class="fill">
 	<div id="userAuth">
-		<input type="text" placeholder="Name Yourself" size="30" id="username">
+		<input type="text" placeholder="Name Yourself" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Name Yourself'" size="30" id="username">
 		<button id="register">Register</button>
 	</div>
 </div>
@@ -15,24 +16,26 @@
 	<div id="serverStats">
 		<div id="title" class="fill">
 			<div class="floatMiddle">
-				USERS
+				Players
 			</div>
 		</div>
-		<div id="users" class="fill">
-			<div id="noUsers">Register to see users!</div>
-			<div class="user">
-				<div class="statusWrap">
-					<div class="status"></div>
-				</div>
-				<div class="name">
-					Rachit				
+		<div id="userListWrapper">
+			<div id="users" class="fill">
+				<div id="noUsers">Register to see users!</div>
+				<div class="user">
+					<div class="statusWrap">
+						<div class="status"></div>
+					</div>
+					<div class="name">
+						Rachit				
+					</div>
 				</div>
 			</div>
-		</div>
-		<div id="footer">
-			<button id="readyToPlay">
-				Ready To Play!
-			</button>	
+			<div id="footer">
+				<button id="readyToPlay">
+					Ready To Play!
+				</button>	
+			</div>
 		</div>
 
 	</div>

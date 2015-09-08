@@ -2,7 +2,7 @@ body
 { 
 	width:100%; 
 	margin: 0; 
-	font-family: 'Segoe UI', sans-serif;
+	font-family: 'Roboto', sans-serif;
 }
 #login, #scene 
 {
@@ -10,7 +10,7 @@ body
 	position: absolute;
 	height:100%;
 	background-color: #eee;
-	width: 100%;
+	width: calc(100% - 250px);
 }
 #login 
 {
@@ -19,31 +19,32 @@ body
 #userAuth
 {
 	width: 20%;
-	margin:20% 20%;
+	margin:20% auto;
 }
 
 #serverStats
 {
     right: 0;
     height: 100%;
-
+    color: #cdd4d7;
 	/*max-width: 400px;*/
-	background-color: #330066;
+	background-color: #455a64;
 	width: 250px;
 	position: absolute;
 }
 #readyToPlay
 {
 	margin-left: 5%;
-	padding: 12px;
-	font-size: 14px;
-	font-weight: bold;
+	padding: 10px;
+	font-family: 'Roboto', sans-serif;
+	font-weight: 400;
+	font-size: 18px;
 	text-align: center;
 	width: 90%;
 	bottom: 10;
 	color: #fff;
-	background: #00CC33;
-	border: 2px solid white;
+	background: #33CC33;
+	border-radius: 5px;
 	position: absolute;
 }
 .fill
@@ -52,18 +53,25 @@ body
 }
 #title
 {
-	height: 4%;
 	text-align: center;
+	background-color: #304650;
+	font-size: 24px;
+	font-family: 'Roboto', sans-serif;
+	font-weight: 500;
+	padding: 5% 0%;
 }
 #users
 {
 	height: 90%;
 }
+#userListWrapper
+{
+	margin-top:2%; 
+}
 .floatMiddle
 {
 	width:90%;
 	margin:0 auto;
-	border-bottom: 1px solid #999999;
 }
 #noUsers
 {
@@ -86,6 +94,7 @@ body
 }
 .status
 {
+
 	margin: 0 auto;
 	width: 14px;
 	height: 14px;
@@ -93,6 +102,10 @@ body
 	-webkit-border-radius: 7px;
 	-moz-border-radius: 7px;
 	background-color: #444;
+	position: relative;
+	top: 50%;
+	transform: 	translateY(20%);
+
 }
 .name
 {
@@ -109,7 +122,9 @@ input[type="text"]
 	display: block;
   	font-family: 'Segoe UI', sans serif;
   	appearance: none;
+	text-align: center; 
   	box-shadow: none;
+  	background: none;
   	border-radius: none;
 	padding: 10px;
 	border: none;
@@ -119,23 +134,29 @@ input[type="text"]
 input[type="text"]:focus
 {
 	outline:none;
-	border-bottom: solid 2px #555;
-}
-input::-webkit-input-placeholder, input::-moz-placeholder, input:-ms-input-placeholder, input:-moz-placeholder 
-{ 
-	font-size: 12pt; 
-	color: #CC0000; 
+	color: #455a64;
+	text-align: center; 
+	background: none;
+	border-bottom: solid 2px #6c7f88;
 }
 
 button
 {
-	color: #ffffff;
-	background: #a9a9a9;
+	color: #cdd4d7;
+	background: #455a64;
 	text-decoration: none;
+	font-family: 'Roboto', sans-serif;
+	font-weight: 400;
+	font-size: 18px;
 	border: none;
-	padding: 5px 10px;
+	border-radius: 5px;
+	padding: 7px 15px;
 }
 button:hover 
 {
-  	background: #969696;
+  	background: #304650;
+}
+#readyToPlay:hover
+{
+	background-color: #00aa00;
 }
