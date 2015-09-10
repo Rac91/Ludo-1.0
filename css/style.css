@@ -10,7 +10,7 @@ body
 	position: absolute;
 	height:100%;
 	background-color: #eee;
-	width: calc(100% - 250px);	
+	width: calc(100% - 250px);
 }
 #login 
 {
@@ -24,7 +24,7 @@ body
 
 #serverStats
 {
-    right: 0	;
+    right: 0;
     height: 100%;
     color: #cdd4d7;
 	/*max-width: 400px;*/
@@ -32,7 +32,7 @@ body
 	width: 250px;
 	position: absolute;
 }
-#readyToPlay
+#ready
 {
 	margin-left: 5%;
 	padding: 10px;
@@ -94,18 +94,19 @@ body
 }
 .status
 {
-
 	margin: 0 auto;
 	width: 14px;
 	height: 14px;
 	border-radius: 7px;
 	-webkit-border-radius: 7px;
 	-moz-border-radius: 7px;
-	background-color: #444;
 	position: relative;
 	top: 50%;
 	transform: 	translateY(20%);
-
+}
+.idle
+{
+	background-color: #444;
 }
 .active
 {
@@ -123,7 +124,7 @@ body
 button, input
 {
     display: block;
-    margin: 3px auto;
+    margin: 5px auto;
 }
 input[type="text"] 
 {
@@ -164,7 +165,7 @@ button:hover
 {
   	background: #304650;
 }
-#readyToPlay:hover
+#ready:hover
 {
 	background-color: #00aa00;
 }

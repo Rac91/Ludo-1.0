@@ -19,16 +19,16 @@ router.get('/',function(req,res){
 });
 
 router.post('/register',function(req,res){
-    var username = req.body['user'];
+    var username = '' || req.body['user'];
     if(username)
     {
     	if (Object.keys(users).indexOf(username)==-1)
-    		return res.sendStatus(200);;
+    		return res.sendStatus(200);
     	else	
     		return res.status(400).send({'error': 'username already in use'});
     }
     else 
-    	return res.status(400).send({'error': 'No username send'});
+    	return res.status(400).send({'error': 'No username sent'});
 });
 
 function generateId()
@@ -45,11 +45,11 @@ function generateId()
 	}
 }
 
-var minUsers = 2;
+var minUsers = 3;
 
 var users = {},
 	gameRooms = [],
-	queuedUsers = {};
+	queuedUsers = [];
 
 io.on('connection', function(socket){
 	console.log( socket.id, ' turned up. Late.');
@@ -91,12 +91,12 @@ io.on('connection', function(socket){
 				lockUsers.push( userSocket.username );
 				userSocket.join(gameRoom);
 			}
-			var game = gameRooms[gameRoom] = new Board(gameRoom, lockedUsers);
+			var game = gameRooms[gameRoom] = new Board(gameRoom, lockUsers);
 			io.sockets.emit('lockUsers', lockUsers);
 		}
 		else
 		{
-			socket.to('registered').broadcast.emit('userReady', socket.username );
+			io.sockets.in('registered').emit('userReady', socket.username );
 		}
 	});
 	
