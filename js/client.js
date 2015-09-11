@@ -4,13 +4,17 @@ var userList = document.getElementById('users');
 
 socket.on('usersList', function(users){
 	console.log('Fresh list of users');
+
+	document.getElementById('login').style.opacity = '0';
+	document.getElementById('messageBoard').style.opacity = '0.7';
+	document.getElementById('scene').style.opacity = '0.3';
+
 	userList.innerHTML = '';
 	for(var i=0; i<users.length;i++)
 		addUser(users[i]);
 });
 
 socket.on('userRegistered', function(user){
-	console.log('I signed up!');
 	addUser(user);
 });
 

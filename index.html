@@ -4,30 +4,37 @@
 	<link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
 </head>
 <body>
-<div id="login" class="fill">
-	<div id="userAuth">
-		<input type="text" placeholder="Name Yourself" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Name Yourself'" size="30" id="username">
-		<button id="register">Register</button>
-	</div>
-</div>
-<div id="scene" class="fill">
+<div id="main">
 	
-</div>
-	<div id="serverStats">
-		<div id="title" class="fill">
-			<div class="floatMiddle">
-				Players
+	<div id="scene" class="fill absolute"></div>
+	<div id="messageBoard" class="fill absolute table">
+		<div class="middleCell">
+			<div id="message">
+				Click Ready to join a game!
 			</div>
 		</div>
-		<div id="userListWrapper">
-			<div id="users" class="fill">
-				<div id="noUsers">Register to see users!</div>
-			</div>
-			<div id="footer">
-				<button id="ready">
-					Ready To Play!
-				</button>	
-			</div>
+	</div>
+	<div id="login" class="fill absolute table">
+		<div id="userAuth" class="middleCell">
+			<input type="text" placeholder="Name Yourself" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Name Yourself'" size="30" id="username">
+			<button id="register">Register</button>
+		</div>
+	</div>
+</div>
+<div id="serverStats">
+	<div id="title">
+		<div class="floatMiddle">
+			Players
+		</div>
+	</div>
+	<div id="userListWrapper">
+		<div id="users">
+			<div id="noUsers">Register to see who's online!</div>
+		</div>
+		<div id="footer">
+			<button id="ready">
+				Ready To Play!
+			</button>	
 		</div>
 	</div>
 </div>

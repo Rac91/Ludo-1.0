@@ -4,22 +4,50 @@ body
 	margin: 0; 
 	font-family: 'Roboto', sans-serif;
 }
-#login, #scene 
+#main
 {
-	display: none;
-	position: absolute;
 	height:100%;
 	background-color: #eee;
 	width: calc(100% - 250px);
+	position: absolute;
 }
 #login 
 {
-	display: block;
+	opacity: 1;
+}
+#scene,#messageBoard
+{
+	opacity: 0;
+}
+.absolute
+{
+	position: absolute;
 }
 #userAuth
 {
 	width: 20%;
 	margin:20% auto;
+}
+#message
+{
+	text-align: center;
+}
+.fill
+{
+	width:100%;
+	height: 100%;
+	transition: opacity 0.5s;
+	-webkit-transition: opacity 0.5s;
+	-moz-transition: opacity 0.5s;
+}
+.table
+{
+	display: table;
+}
+.middleCell
+{
+	display: table-cell;
+	vertical-align: middle;
 }
 
 #serverStats
@@ -27,7 +55,6 @@ body
     right: 0;
     height: 100%;
     color: #cdd4d7;
-	/*max-width: 400px;*/
 	background-color: #455a64;
 	width: 250px;
 	position: absolute;
@@ -47,10 +74,7 @@ body
 	border-radius: 5px;
 	position: absolute;
 }
-.fill
-{
-	width:100%;
-}
+
 #title
 {
 	text-align: center;
@@ -59,10 +83,12 @@ body
 	font-family: 'Roboto', sans-serif;
 	font-weight: 500;
 	padding: 5% 0%;
+	width: 100%;
 }
 #users
 {
 	height: 90%;
+	width: 100%;
 }
 #userListWrapper
 {
