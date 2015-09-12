@@ -1,8 +1,6 @@
 var ludoControllers = angular.module('ludoControllers', []);
 
-ludoControllers.controller('LoginCtrl', function ($scope, $rootScope, $location, socket) {
-  	
-  	$scope.username = '';
+ludoControllers.controller('LoginCtrl', function ($scope, $rootScope, $location, Authenticate, socket) {
 
 	$scope.register = function(u){
 		username = $scope.username || u;
@@ -11,15 +9,21 @@ ludoControllers.controller('LoginCtrl', function ($scope, $rootScope, $location,
 	};
 
 	socket.on('userRegistered', function(user){
-		$rootScope.username=user;
-		console.log('Redirecting to home')
-		$location.path("/home");
+		Authenticate.setUser(user);
+		console.log('Redirecting to home');
+		$location.path('/home');
 	});
 });
 
 ludoControllers.controller('BoardCtrl', function ($scope, socket) {
   	
   	$scope.userList = {};
+  	$scope.message = 'Click Ready to join a game!';
+	
+	$scope.engageUser = function (){
+		socket.emit('readyToPlay');
+	};
+
 	socket.on('usersList', function(users){
 		console.log('Fresh list of users');
 		$scope.userList = users;
@@ -28,13 +32,7 @@ ludoControllers.controller('BoardCtrl', function ($scope, socket) {
 	
 	socket.on('userReady', function(user){
 		$scope.userList[user] = 'active';
-		// statusDiv = document.getElementById(user).firstChild.firstChild;
-		// statusDiv.className = statusDiv.className.split(' ')[0] + '  active';
 	});
-	$scope.engageUser = function ()
-						 {
-							socket.emit('readyToPlay');
-						 }
 
 	socket.on('userRegistered', function(user){
 		$scope.userList[user] = 'idle';
@@ -43,12 +41,9 @@ ludoControllers.controller('BoardCtrl', function ($scope, socket) {
 	socket.on('deregister', function (user) {
 		if ($scope.userList[user])
     		delete $scope.userList[user];
-});
+	});
 
 });
-
-
-
 
 // socket.on('userReady', function(user){
 // 	statusDiv = document.getElementById(user).firstChild.firstChild;

@@ -1,25 +1,21 @@
-var app = angular.module('ludoApp', ['ngRoute', 'ludoControllers'])
-.run(function($rootScope) {
-    $rootScope.username = '';
-});
+var app = angular.module('ludoApp', ['ngRoute', 'ngCookies', 'ludoControllers'])
 
-app.config(['$routeProvider',
-	function($routeProvider) {
-	$routeProvider.
-	  when('/login', {
+.config(['$routeProvider', function($routeProvider) {
+	$routeProvider
+	  .when('/login', {
 	    templateUrl: 'partials/login.html',
 	    controller: 'LoginCtrl'
-	  }).
-	  when('/home', {
+	  })
+	  .when('/home', {
 	    templateUrl: 'partials/game.html',
 	    controller: 'BoardCtrl'
-	  }).
-	  otherwise({
+	  })
+	  .otherwise({
 	    redirectTo: '/login'
 	  });
-}]);
-
-app.factory('socket', function ($rootScope) {
+}])
+.factory('socket', function ($rootScope) {
+  
   var socket = io.connect();
   return {
     on: function (eventName, callback) {
@@ -41,8 +37,40 @@ app.factory('socket', function ($rootScope) {
       })
     }
   };
-});	
+})
+.factory('Authenticate',['$cookies', function($cookies){
+var cookieKey = 'ludoApp_user',
+	user = $cookies.get(cookieKey);
+return{
+	cookieKey: cookieKey,
+    setUser : function(username){
+    	$cookies.put(cookieKey, username);
+        user = username;
+    },
+    removeUser : function(){
+    	if(user)
+    		$cookies.remove(cookieKey);
+        user = undefined;
+    },
+    isLoggedIn : function(){
+        return (user)? user : false;
+    }
+  }
+}])
+.run(['$rootScope', '$location', '$cookies', 'Authenticate', function($rootScope, $location, $cookies, Authenticate) {
+    $rootScope.username = $cookies.get(Authenticate.cookieKey) || '';
 
+    $rootScope.$on('$routeChangeStart', function (event) {
+
+        if (!Authenticate.isLoggedIn()) {
+            // event.preventDefault();
+            $location.path('/login');
+        }
+        else
+        	$location.path('/home');
+    });
+
+}]);
 // socket.on('usersList', function(users){
 // 	console.log('Fresh list of users');
 
@@ -115,6 +143,3 @@ app.factory('socket', function ($rootScope) {
 // {
 // 	socket.emit('readyToPlay');
 // }
-
-// document.getElementById('register').addEventListener('click', getUserName);
-// document.getElementById('ready').addEventListener('click', engageUser);

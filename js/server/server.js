@@ -54,9 +54,10 @@ var users = {},
 io.on('connection', function(socket){
 	console.log( socket.id, ' turned up. Late.');
 	socket.on('register', function(username){
-		console.log('Registering ', username);
+		
   		if(username && !users[username])
   		{
+  			console.log('Registering ', username);
   			socket.username = username;
   			users[username] = 'idle';
   			socket.join('registered');
