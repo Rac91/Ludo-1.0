@@ -147,17 +147,17 @@ body
 	width: 85%;
 }
 
-button, input
+button, input, .middle
 {
     display: block;
-    margin: 5px auto;
+    margin: 2px auto;
+	text-align: center; 
 }
 input[type="text"] 
 {
 	display: block;
-  	font-family: 'Segoe UI', sans serif;
+	font-family: 'Roboto', sans-serif;
   	appearance: none;
-	text-align: center; 
   	box-shadow: none;
   	background: none;
   	border-radius: none;
@@ -170,12 +170,11 @@ input[type="text"]:focus
 {
 	outline:none;
 	color: #455a64;
-	text-align: center; 
 	background: none;
 	border-bottom: solid 2px #6c7f88;
 }
 
-button
+#submit
 {
 	color: #cdd4d7;
 	background: #455a64;
@@ -187,7 +186,7 @@ button
 	border-radius: 5px;
 	padding: 7px 15px;
 }
-button:hover 
+#submit:hover 
 {
   	background: #304650;
 }

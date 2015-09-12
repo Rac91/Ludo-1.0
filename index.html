@@ -1,49 +1,17 @@
+<html ng-app="ludoApp">
 <head>
 	<title>All a-board</title>
 	<link rel="stylesheet" type="text/css" href="css/style.css"></style>
 	<link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+	<script src="js/lib/socket.io.min.js"></script>
+	<script src="js/lib/angular.min.js"></script>
+	<script src="js/lib/angular-route.min.js"></script>
+	<script src="js/config.js"></script>
+	<script src="js/controller.js"></script>
 </head>
 <body>
-<div id="main">
-	
-	<div id="scene" class="fill absolute"></div>
-	<div id="messageBoard" class="fill absolute table">
-		<div class="middleCell">
-			<div id="message">
-				Click Ready to join a game!
-			</div>
-		</div>
-	</div>
-	<div id="login" class="fill absolute table">
-		<div id="userAuth" class="middleCell">
-			<input type="text" placeholder="Name Yourself" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Name Yourself'" size="30" id="username">
-			<button id="register">Register</button>
-		</div>
-	</div>
-</div>
-<div id="serverStats">
-	<div id="title">
-		<div class="floatMiddle">
-			Players
-		</div>
-	</div>
-	<div id="userListWrapper">
-		<div id="users">
-			<div id="noUsers">Register to see who's online!</div>
-		</div>
-		<div id="footer">
-			<button id="ready">
-				Ready To Play!
-			</button>	
-		</div>
-	</div>
-</div>
-</body>
 
-<script src="js/lib/three.min.js"></script>
-<script src="js/lib/OrbitControls.js"></script>
-<script src="js/lib/Detector.js"></script>
-<script src="js/lib/stats.min.js"></script>
-<script src="js/lib/socket.io.min.js"></script>
-<script src="js/client.js"></script>
-<!-- <script src="js/app.js"></script> -->
+  <div ng-view></div>
+
+</body>
+</html>

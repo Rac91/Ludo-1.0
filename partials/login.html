@@ -1,0 +1,17 @@
+<form name="loginForm" ng-submit="register()" class="fill absolute table">
+    <div class="middleCell">
+	    <input type="text" name="username" ng-model="username"  placeholder="Name Yourself" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Name Yourself'"  ng-minlength="4" ng-maxlength="12" size="30" required>
+	    <div class="alert middle">
+	      	<div class="error" ng-show="myForm.userName.$error.required">
+	       		Required!
+	       	</div>
+	      	<div class="error" ng-show="loginForm.username.$error.minlength">
+	        	Too short!
+	        </div>
+	      	<div class="error" ng-show="loginForm.username.$error.maxlength">
+	        	Too long!
+	        </div>
+	      <input type="submit" id="submit" value="Submit" ng-disabled="!loginForm.$valid" />
+	    </div>
+	</div>
+</form>
