@@ -60,11 +60,14 @@ io.on('connection', function(socket){
   			socket.username = username;
   			users[username] = true;
   			socket.join('registered');
-  			socket.to('registered').broadcast.emit('userRegistered', username );
-  			socket.emit('usersList', Object.keys(users) );
+  			io.sockets.in('registered').emit('userRegistered', username );
   		}
   		else
   			socket.emit('failure', "Santa doesn't like naughty children");
+	});
+
+	socket.on('getUsers', function(){
+		socket.emit('usersList', Object.keys(users) );
 	});
 
 	// socket.on('createRoom', function(roomName){
