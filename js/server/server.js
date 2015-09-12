@@ -58,7 +58,7 @@ io.on('connection', function(socket){
   		if(username && !users[username])
   		{
   			socket.username = username;
-  			users[username] = true;
+  			users[username] = 'idle';
   			socket.join('registered');
   			io.sockets.in('registered').emit('userRegistered', username );
   		}
@@ -67,7 +67,7 @@ io.on('connection', function(socket){
 	});
 
 	socket.on('getUsers', function(){
-		socket.emit('usersList', Object.keys(users) );
+		socket.emit('usersList', users );
 	});
 
 	// socket.on('createRoom', function(roomName){
@@ -82,6 +82,7 @@ io.on('connection', function(socket){
 
 	socket.on('readyToPlay', function(){
 		queuedUsers.push(socket);
+		users[socket.username] = 'active';
 		console.log('Queue length ', queuedUsers.length);
 		if(queuedUsers.length>=minUsers)
 		{
@@ -110,8 +111,12 @@ io.on('connection', function(socket){
 			console.log('Deregistering ', username);
 	      	delete users[username];
 	      	for(var i=0;i<queuedUsers.length;i++)
-	      	if(queuedUsers[i].username==username)
-	      		queuedUsers.splice(i,1);
+		      	if(queuedUsers[i].username==username)
+		      	{
+		      		queuedUsers.splice(i,1);
+		      		break;
+		      	}
+
 	      	socket.to('registered').broadcast.emit('deregister', username);
 	    }
 	    else

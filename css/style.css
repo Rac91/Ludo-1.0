@@ -17,7 +17,7 @@ body
 }
 #scene,#messageBoard
 {
-	opacity: 0;
+	/*opacity: 0;*/
 }
 .absolute
 {

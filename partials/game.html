@@ -5,4 +5,26 @@
 			Click Ready to join a game!
 		</div>
 	</div>
+<div id="serverStats">
+	<div id="title">
+		<div class="floatMiddle">
+			Players
+		</div>
+	</div>
+	<div id="userListWrapper">
+		<div id="user" class = "user"  ng-repeat = "(user, status) in userList">
+			<div class = "statusWrap">
+				<div class = "status {{ status }}" ></div>
+			</div>
+			<div class = "name">{{ user }}</div>
+			<!-- <div id="noUsers">Register to see who's online!</div> -->
+		</div>
+		<div id="footer">
+			<button id="ready" ng-click = engageUser()>
+				Ready To Play!
+			</button>	
+		</div>
+	</div>
+</div>
+</body>
 </div>
