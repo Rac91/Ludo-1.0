@@ -2,6 +2,7 @@ var express = require('express');
 var bodyparser = require('body-parser');
 var router = express.Router();
 
+require('./ip_module.js')();
 app = express();
 app.use(express.static(__dirname+'/../../.'));
 var Board = require('./board.js');
@@ -105,6 +106,40 @@ io.on('connection', function(socket){
 		}
 	});
 
+	socket.on('relogin', function(username){
+		console.log('Reconnect check: '+ users[username]);
+		if(users[username]==='disconnected')
+		{
+			console.log('Reconnecting ', username);
+			socket.username = username;
+			users[username] = 'idle';
+	  		socket.join('registered');
+	  		socket.to('registered').broadcast.emit('relogin', username);
+	  		socket.emit('relogin');
+	  	}
+	});
+	
+	socket.on('disconnect', function(){
+		console.log(socket.username+' disconnected');
+		if (users[socket.username])
+		{
+			username = socket.username;
+			console.log('Deregistering ', username);
+
+	      	for(var i=0;i<queuedUsers.length;i++)
+		      	if(queuedUsers[i].username==username)
+		      	{
+		      		queuedUsers.splice(i,1);
+		      		break;
+		      	}
+	      	users[username] = 'disconnected';
+
+	      	socket.to('registered').broadcast.emit('disconnected', username);
+	    }
+	    else
+	    	console.log( socket.id, ' just left without a word.');
+	});
+
 	socket.on('logout', function(){
 		if (users[socket.username])
 		{
@@ -117,26 +152,5 @@ io.on('connection', function(socket){
 	      	socket.emit('logout');
 	      	socket.to('registered').broadcast.emit('deregister', username);
 		}
-	});
-	
-	socket.on('disconnect', function(){
-		console.log('Disconnect received from '+socket.id);
-		if (users[socket.username])
-		{
-			username = socket.username;
-			console.log('Deregistering ', username);
-
-	      	for(var i=0;i<queuedUsers.length;i++)
-		      	if(queuedUsers[i].username==username)
-		      	{
-		      		queuedUsers.splice(i,1);
-		      		break;
-		      	}
-	      	delete users[username];
-
-	      	socket.to('registered').broadcast.emit('deregister', username);
-	    }
-	    else
-	    	console.log( socket.id, ' just left without a word.');
 	});
 });

@@ -14,9 +14,39 @@ var app = angular.module('ludoApp', ['ngRoute', 'ngCookies', 'ludoControllers'])
 	    redirectTo: '/login'
 	  });
 }])
-.factory('socket', function ($rootScope) {
+.factory('Authenticate', ['$cookies', function($cookies){
+var cookieKey = 'ludoApp_user',
+	user = $cookies.get(cookieKey);
+
+return {
+	cookieKey: cookieKey,
+    setUser : function(username){
+    	$cookies.put(cookieKey, username);
+        user = username;
+    },
+    removeUser : function(){
+    	if(user)
+    		$cookies.remove(cookieKey);
+        user = undefined;
+    },
+    isLoggedIn : function(){
+        return (user)? user : false;
+    }
+  };
+}])
+.factory('socket', ['$rootScope', '$location', 'Authenticate', function ($rootScope, $location, Authenticate) {
   
-  var socket = io.connect();
+  var socket = io.connect(),
+  	  user = Authenticate.isLoggedIn();
+  if (user)
+  	{
+		socket.on('relogin', function(){
+			console.log('Reconnected. Redirecting to home');
+			Authenticate.setUser(user);
+			$location.path('/home');
+		});
+		socket.emit('relogin', user);
+	}
   return {
     on: function (eventName, callback) {
       socket.on(eventName, function () {  
@@ -37,28 +67,8 @@ var app = angular.module('ludoApp', ['ngRoute', 'ngCookies', 'ludoControllers'])
       })
     }
   };
-})
-.factory('Authenticate',['$cookies', function($cookies){
-var cookieKey = 'ludoApp_user',
-	user = $cookies.get(cookieKey);
-return{
-	cookieKey: cookieKey,
-    setUser : function(username){
-    	$cookies.put(cookieKey, username);
-        user = username;
-    },
-    removeUser : function(){
-    	if(user)
-    		$cookies.remove(cookieKey);
-        user = undefined;
-    },
-    isLoggedIn : function(){
-        return (user)? user : false;
-    }
-  }
 }])
 .run(['$rootScope', '$location', '$cookies', 'Authenticate', function($rootScope, $location, $cookies, Authenticate) {
-    $rootScope.username = $cookies.get(Authenticate.cookieKey) || '';
 
     $rootScope.$on('$routeChangeStart', function (event) {
 
