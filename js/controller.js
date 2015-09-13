@@ -18,10 +18,12 @@ ludoControllers.controller('LoginCtrl', function ($scope, $rootScope, $location,
 ludoControllers.controller('BoardCtrl', function ($scope, socket, $location, Authenticate) {
   	
   	$scope.userList = {};
+  	$scope.animateClass = 'slideLeft';
   	$scope.message = 'Click Ready to join a game!';
 	
 	$scope.engageUser = function (){
 		socket.emit('readyToPlay');
+		$scope.animateClass = 'slideRight';
 	};
 
 	$scope.logoutUser = function(){

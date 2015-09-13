@@ -49,15 +49,24 @@ body
 	display: table-cell;
 	vertical-align: middle;
 }
-
-#serverStats
+.slideLeft
 {
     right: 0;
+}
+.slideRight
+{
+	right : -100%;
+}
+#serverStats
+{
     height: 100%;
     color: #cdd4d7;
 	background-color: #455a64;
 	width: 250px;
 	position: absolute;
+	transition : all 1s ease;
+	-webkit-transition: all ease 1s; 
+	-moz-transition : all ease 1s;
 }
 #ready
 {
@@ -186,6 +195,23 @@ input[type="text"]:focus
 	border-radius: 5px;
 	padding: 7px 15px;
 }
+
+/*#header
+{
+	margin-top: 1%;
+	height: 5%;
+	
+}
+
+#logout
+{
+	background: #92cfde;
+	border-radius: 5px;
+	padding : 80%;
+	margin-top: 5% ;
+	text-align: center;
+}
+*/
 #submit:hover 
 {
   	background: #304650;
