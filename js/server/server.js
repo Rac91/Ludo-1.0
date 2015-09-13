@@ -104,19 +104,35 @@ io.on('connection', function(socket){
 			io.sockets.in('registered').emit('userReady', socket.username );
 		}
 	});
+
+	socket.on('logout', function(){
+		if (users[socket.username])
+		{
+			username = socket.username;
+			console.log('logging out ', username);
+
+			socket.leave('registered');
+	      	delete users[username];
+
+	      	socket.emit('logout');
+	      	socket.to('registered').broadcast.emit('deregister', username);
+		}
+	});
 	
 	socket.on('disconnect', function(){
+		console.log('Disconnect received from '+socket.id);
 		if (users[socket.username])
 		{
 			username = socket.username;
 			console.log('Deregistering ', username);
-	      	delete users[username];
+
 	      	for(var i=0;i<queuedUsers.length;i++)
 		      	if(queuedUsers[i].username==username)
 		      	{
 		      		queuedUsers.splice(i,1);
 		      		break;
 		      	}
+	      	delete users[username];
 
 	      	socket.to('registered').broadcast.emit('deregister', username);
 	    }

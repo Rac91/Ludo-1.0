@@ -1,5 +1,10 @@
 <div id="scene" class="fill absolute"></div>
 <div id="messageBoard" class="fill absolute table">
+<div id = "header">
+	<button id = "logout" ng-click="logoutUser()">
+		Logout
+	</button>
+</div>
 	<div class="middleCell">
 		<div id="message">
 			{{message}}
@@ -21,7 +26,7 @@
 			<!-- <div id="noUsers">Register to see who's online!</div> -->
 		</div>
 		<div id="footer">
-			<button id="ready" ng-click = engageUser()>
+			<button id="ready" ng-click="engageUser()">
 				Ready To Play!
 			</button>	
 		</div>
