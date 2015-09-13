@@ -6,7 +6,11 @@ var app = angular.module('ludoApp', ['ngRoute', 'ngCookies', 'ludoControllers'])
 	    templateUrl: 'partials/login.html',
 	    controller: 'LoginCtrl'
 	  })
-	  .when('/home', {
+	  .when('/lobby', {
+	    templateUrl: 'partials/lobby.html',
+	    controller: 'LobbyCtrl'
+	  })
+	  .when('/game', {
 	    templateUrl: 'partials/game.html',
 	    controller: 'BoardCtrl'
 	  })

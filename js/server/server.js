@@ -62,14 +62,15 @@ io.on('connection', function(socket){
   			socket.username = username;
   			users[username] = 'idle';
   			socket.join('registered');
-  			io.sockets.in('registered').emit('userRegistered', username );
+  			io.sockets.in('registered').emit('newUser', username );
   		}
   		else
   			socket.emit('failure', "Santa doesn't like naughty children");
 	});
 
 	socket.on('getUsers', function(){
-		socket.emit('usersList', users );
+		if(socket.username && users[socket.username])
+			socket.emit('setUsers', users );
 	});
 
 	// socket.on('createRoom', function(roomName){
@@ -124,7 +125,6 @@ io.on('connection', function(socket){
 		if (users[socket.username])
 		{
 			username = socket.username;
-			console.log('Deregistering ', username);
 
 	      	for(var i=0;i<queuedUsers.length;i++)
 		      	if(queuedUsers[i].username==username)
@@ -150,7 +150,7 @@ io.on('connection', function(socket){
 	      	delete users[username];
 
 	      	socket.emit('logout');
-	      	socket.to('registered').broadcast.emit('deregister', username);
+	      	socket.to('registered').broadcast.emit('loggedOut', username);
 		}
 	});
 });

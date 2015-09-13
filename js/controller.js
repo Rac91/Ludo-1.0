@@ -8,14 +8,14 @@ ludoControllers.controller('LoginCtrl', function ($scope, $rootScope, $location,
 			socket.emit('register', username);
 	};
 
-	socket.on('userRegistered', function(user){
+	socket.on('newUser', function(user){
 		Authenticate.setUser(user);
 		console.log('Redirecting to home');
 		$location.path('/home');
 	});
 });
 
-ludoControllers.controller('BoardCtrl', function ($scope, socket, $location, Authenticate) {
+ludoControllers.controller('LobbyCtrl', function ($scope, socket, $location, Authenticate) {
   	
   	$scope.userList = {};
   	$scope.animateClass = 'slideLeft';
@@ -30,7 +30,7 @@ ludoControllers.controller('BoardCtrl', function ($scope, socket, $location, Aut
 		socket.emit('logout');
 	}
 
-	socket.on('usersList', function(users){
+	socket.on('setUsers', function(users){
 		console.log('Fresh list of users');
 		$scope.userList = users;
     });
@@ -40,16 +40,16 @@ ludoControllers.controller('BoardCtrl', function ($scope, socket, $location, Aut
 		$scope.userList[user] = 'active';
 	});
 
-	socket.on('userRegistered', function(user){
+	socket.on('newUser', function(user){
 		$scope.userList[user] = 'idle';
 	});
 
-	socket.on('deregister', function (user) {
-		if ($scope.userList[user])
-		{
-			Authenticate.removeUser();
-			delete $scope.userList[user];
-		}
+	socket.on('disconnected', function (user) {
+		$scope.userList[user] = 'dc';
+	});
+
+	socket.on('loggedOut', function (user) {
+		delete $scope.userList[user];
 	});
 
 	socket.on('logout', function(user){
@@ -59,6 +59,9 @@ ludoControllers.controller('BoardCtrl', function ($scope, socket, $location, Aut
 
 });
 
+ludoControllers.controller('BoardCtrl', function ($scope, Authenticate) {
+	alert('In game');
+});
 // socket.on('userReady', function(user){
 // 	statusDiv = document.getElementById(user).firstChild.firstChild;
 // 	statusDiv.className = statusDiv.className.split(' ')[0] + '  active';
