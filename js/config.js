@@ -47,7 +47,7 @@ return {
 		socket.on('relogin', function(){
 			console.log('Reconnected. Redirecting to home');
 			Authenticate.setUser(user);
-			$location.path('/home');
+			$location.path('/lobby');
 		});
 		socket.emit('relogin', user);
 	}
@@ -81,7 +81,7 @@ return {
             $location.path('/login');
         }
         else
-        	$location.path('/home');
+        	$location.path('/lobby');
     });
 
 }]);

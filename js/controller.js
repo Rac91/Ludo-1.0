@@ -11,7 +11,7 @@ ludoControllers.controller('LoginCtrl', function ($scope, $rootScope, $location,
 	socket.on('newUser', function(user){
 		Authenticate.setUser(user);
 		console.log('Redirecting to home');
-		$location.path('/home');
+		$location.path('/lobby');
 	});
 });
 
