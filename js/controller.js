@@ -37,7 +37,7 @@ ludoControllers.controller('LobbyCtrl', function ($scope, socket, $location, Aut
     socket.emit('getUsers');
 	
 	socket.on('userReady', function(user){
-		$scope.userList[user] = 'active';
+		$scope.userList[user] = 'searching';
 	});
 
 	socket.on('newUser', function(user){

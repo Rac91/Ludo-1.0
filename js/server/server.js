@@ -23,8 +23,11 @@ router.post('/register',function(req,res){
     var username = '' || req.body['user'];
     if(username)
     {
-    	if (Object.keys(users).indexOf(username)==-1)
+    	if (Object.keys(userStatus).indexOf(username)==-1)
+    	{
+    		userStatus[username] = 'disconnected';
     		return res.sendStatus(200);
+    	}
     	else	
     		return res.status(400).send({'error': 'username already in use'});
     }
@@ -46,21 +49,23 @@ function generateId()
 	}
 }
 
-var minUsers = 3;
-
-var users = {},
+var userStatus = {}, userSockets = {},
 	gameRooms = [],
-	queuedUsers = [];
+	queuedUsers = [],
+	queueCount = 0,
+	minUsers = 4;
 
 io.on('connection', function(socket){
 	console.log( socket.id, ' turned up. Late.');
+
 	socket.on('register', function(username){
 		
-  		if(username && !users[username])
+  		if(username && !userStatus[username])
   		{
   			console.log('Registering ', username);
   			socket.username = username;
-  			users[username] = 'idle';
+  			userSockets[username] = socket;
+  			userStatus[username] = 'idle';
   			socket.join('registered');
   			io.sockets.in('registered').emit('newUser', username );
   		}
@@ -69,23 +74,24 @@ io.on('connection', function(socket){
 	});
 
 	socket.on('getUsers', function(){
-		if(socket.username && users[socket.username])
-			socket.emit('setUsers', users );
+		if(socket.username && userStatus[socket.username])
+			socket.emit('setUsers', userStatus );
 	});
 
-	// socket.on('createRoom', function(roomName){
-	// 	if(socket.username && gameRooms.indexOf(roomName)===-1)
-	// 	{
-	// 		gameRooms.push( roomName );
-	// 		socket.broadcast.emit('addRoom', roomName );
-	// 	}
-	// 	else
-	// 		socket.emit('failure', "Santa doesn't like naughty children");
-	// });
+	socket.on('invite', function(invitee){
+		if(socket.username && userSockets[invitee] && userStatus[invitee]!='searching' && userStatus[invitee]!='engaged')
+		{
+			userSockets[invitee].emit('invite', socket.username );
+			socket.emit('inviteSent');
+		}
+		else
+			socket.emit('failure', "Couldn't find "+invitee+"!");
+	});
 
 	socket.on('readyToPlay', function(){
+		userStatus[socket.username] = 'searching';
 		queuedUsers.push(socket);
-		users[socket.username] = 'active';
+		queueCount++;
 		console.log('Queue length ', queuedUsers.length);
 		if(queuedUsers.length>=minUsers)
 		{
@@ -94,6 +100,7 @@ io.on('connection', function(socket){
 			var lockUsers = [];
 			while(--freezeCount > 0)
 			{
+				userStatus[socket.username] = 'engaged';
 				userSocket = queuedUsers.shift();
 				lockUsers.push( userSocket.username );
 				userSocket.join(gameRoom);
@@ -108,12 +115,12 @@ io.on('connection', function(socket){
 	});
 
 	socket.on('relogin', function(username){
-		console.log('Reconnect check: '+ users[username]);
-		if(users[username]==='disconnected')
+		console.log('Reconnect check: '+ userStatus[username]);
+		if(userStatus[username]==='disconnected')
 		{
 			console.log('Reconnecting ', username);
 			socket.username = username;
-			users[username] = 'idle';
+			userStatus[username] = 'idle';
 	  		socket.join('registered');
 	  		socket.to('registered').broadcast.emit('relogin', username);
 	  		socket.emit('relogin');
@@ -122,7 +129,7 @@ io.on('connection', function(socket){
 	
 	socket.on('disconnect', function(){
 		console.log(socket.username+' disconnected');
-		if (users[socket.username])
+		if (userStatus[socket.username])
 		{
 			username = socket.username;
 
@@ -132,7 +139,7 @@ io.on('connection', function(socket){
 		      		queuedUsers.splice(i,1);
 		      		break;
 		      	}
-	      	users[username] = 'disconnected';
+	      	userStatus[username] = 'disconnected';
 
 	      	socket.to('registered').broadcast.emit('disconnected', username);
 	    }
@@ -141,13 +148,14 @@ io.on('connection', function(socket){
 	});
 
 	socket.on('logout', function(){
-		if (users[socket.username])
+		if (userStatus[socket.username])
 		{
 			username = socket.username;
 			console.log('logging out ', username);
 
 			socket.leave('registered');
-	      	delete users[username];
+			delete userSockets[username];
+	      	delete userStatus[username];
 
 	      	socket.emit('logout');
 	      	socket.to('registered').broadcast.emit('loggedOut', username);
