@@ -49,7 +49,7 @@ function generateId()
 	}
 }
 
-var userStatus = {}, userSockets = {},
+var userStatus = {}, userSockets = {}, invitecount = {},
 	gameRooms = [],
 	queuedUsers = [],
 	queueCount = 0,
@@ -66,6 +66,7 @@ io.on('connection', function(socket){
   			socket.username = username;
   			userSockets[username] = socket;
   			userStatus[username] = 'idle';
+  			invitecount[username] = 4;
   			socket.join('registered');
   			io.sockets.in('registered').emit('newUser', username );
   		}
@@ -79,10 +80,12 @@ io.on('connection', function(socket){
 	});
 
 	socket.on('invite', function(invitee){
-		if(socket.username && userSockets[invitee] && userStatus[invitee]!='searching' && userStatus[invitee]!='engaged')
+		if(invitee && socket.username && userSockets[invitee]  && userStatus[invitee] =='idle' && invitecount[socket.username]>0)
 		{
-			userSockets[invitee].emit('invite', socket.username );
-			socket.emit('inviteSent');
+			userSockets[invitee].emit('invited', socket.username );
+			invitecount[socket.username] -= 1;
+ 			socket.emit('inviteSent');
+			console.log(socket.username + ' invited '  + invitee);
 		}
 		else
 			socket.emit('failure', "Couldn't find "+invitee+"!");

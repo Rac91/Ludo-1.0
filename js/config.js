@@ -1,4 +1,4 @@
-var app = angular.module('ludoApp', ['ngRoute', 'ngCookies', 'ludoControllers'])
+var app = angular.module('ludoApp', ['ngRoute', 'ngAnimate', 'ngCookies', 'ludoControllers'])
 
 .config(['$routeProvider', function($routeProvider) {
 	$routeProvider

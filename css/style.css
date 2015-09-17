@@ -121,9 +121,16 @@ body
 {
 	width: 100%;
 	max-height: 40px;
+    position: relative;
+    transition: 0.5s ease all;
+    -webkit-transition: 0.5s ease all;
+    -moz-transition: 0.5s ease all;
+    -ms-transition: 0.5s ease all;
+    -o-transition: 0.5s ease all;
 }
 .statusWrap
 {
+	display: inline-block;
 	width: 15%;
 	float: left;
 }
@@ -153,7 +160,8 @@ body
 }
 .name
 {
-	width: 85%;
+	display: inline-block;
+	width: 60%;
 }
 
 button, input, .middle
@@ -212,6 +220,26 @@ input[type="text"]:focus
 	text-align: center;
 }
 */
+
+#inviteBtn
+{
+	display: inline-block;
+	width: 20%;
+}
+#invite
+{
+	width :50%;
+}
+#okBtn
+{
+	display: inline-block;
+	width: 20%;
+}
+#cancelBtn
+{
+	display: inline-block;
+	width: 20%;
+}
 #submit:hover 
 {
   	background: #304650;
@@ -219,4 +247,24 @@ input[type="text"]:focus
 #ready:hover
 {
 	background-color: #00aa00;
+}
+.user.ng-enter
+{ 
+    top: 50px;
+    opacity: 0;
+} 
+.user.ng-enter-active
+{
+    top: 0;
+    opacity: 1;	
+}
+.user.ng-leave
+{
+	left:0;
+    opacity: 1;	
+}
+.user.ng-leave-active
+{
+	left:100%;
+    opacity: 0;	
 }

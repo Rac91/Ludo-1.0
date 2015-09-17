@@ -15,15 +15,20 @@ ludoControllers.controller('LoginCtrl', function ($scope, $rootScope, $location,
 	});
 });
 
-ludoControllers.controller('LobbyCtrl', function ($scope, socket, $location, Authenticate) {
+ludoControllers.controller('LobbyCtrl', function ($scope, socket, $location, Authenticate, $window) {
   	
   	$scope.userList = {};
+  	$scope.invites = [];
   	$scope.animateClass = 'slideLeft';
   	$scope.message = 'Click Ready to join a game!';
 	
 	$scope.engageUser = function (){
 		socket.emit('readyToPlay');
 		$scope.animateClass = 'slideRight';
+	};
+
+	$scope.inviteFriend = function (){
+		socket.emit('invite',this.user);
 	};
 
 	$scope.logoutUser = function(){
@@ -56,6 +61,10 @@ ludoControllers.controller('LobbyCtrl', function ($scope, socket, $location, Aut
 		Authenticate.removeUser();
 		$location.path('/login');
 	});
+
+    socket.on('invited',function(host){
+    	$scope.invites.push(host);
+    });
 
 });
 
