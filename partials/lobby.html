@@ -1,32 +1,43 @@
 <div id="messageBoard" class="fill absolute table">
-<div id = "header">
-	<button id = "logout" ng-click="logoutUser()">
-		Logout
-	</button>
-<div>
-</div>
-	<div class="middleCell">
+	<div id = "header">
+		<button id = "logout" ng-click="logoutUser()">
+			Logout
+		</button>
+	</div>
+	<div id="myArea">
+		<div id="team" align="center">
+			<div class="teamMate">
+				ff
+			</div>
+			<div class="teamMate">
+				ff
+			</div>
+			<div class="teamMate">
+				ff
+			</div>
+			<div class="teamMate">
+				ff
+			</div>
+		</div>
+		<div id = "invites" ng-repeat = "invite in invites">
+			<div id = "invite">invite from {{invite}} 
+				<div id="okBtn" >
+					<button  ng-click="acceptInvite()">
+							Ok
+					</button>	
+				</div>
+				<div id="cancelBtn" >
+					<button  ng-click="removeInvite()">
+						Cancel
+					</button>	
+				</div>
+			</div>
+		</div>		
+	</div>
+
 		<div id="message">
 			{{message}}
 		</div>
-	</div>
-</div>
-<div>
-	
-</div>
-<div id = "invites" ng-repeat = "invite in invites">
-	<div id = "invite">invite from {{invite}} 
-		<div id="okBtn" >
-				<button  ng-click="acceptInvite()">
-							Ok
-					</button>	
-		</div>
-		<div id="cancelBtn" >
-		<button  ng-click="removeInvite()">
-					Cancel
-			</button>	
-		</div>
-	</div>
 </div>
 <div id="serverStats" class="{{ animateClass }}">
 	<div id="title">
@@ -35,7 +46,7 @@
 		</div>
 	</div>
 	<div id="userListWrapper">
-		<div id="user" class = "user" ng-repeat = "(user, status) in userList">
+		<div id="user" class = "user"  ng-repeat = "(user, status) in userList">
 			<div class = "statusWrap">
 				<div class = "status {{ status }}" ></div>
 			</div>

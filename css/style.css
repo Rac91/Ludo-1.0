@@ -3,6 +3,7 @@ body
 	width:100%; 
 	margin: 0; 
 	font-family: 'Roboto', sans-serif;
+	overflow: hidden;
 }
 #main
 {
@@ -30,6 +31,7 @@ body
 }
 #message
 {
+	display: none;
 	text-align: center;
 }
 .fill
@@ -44,10 +46,15 @@ body
 {
 	display: table;
 }
-.middleCell
+#myArea
 {
-	display: table-cell;
+	display: block;
 	vertical-align: middle;
+	background-color: #323322;
+	width: 40%;
+	height: 80%;
+	max-height: 700px;
+
 }
 .slideLeft
 {
@@ -55,7 +62,7 @@ body
 }
 .slideRight
 {
-	right : -100%;
+	right : -250px;
 }
 #serverStats
 {
@@ -80,6 +87,7 @@ body
 	bottom: 10;
 	color: #fff;
 	background: #33CC33;
+	border: none;
 	border-radius: 5px;
 	position: absolute;
 }
@@ -93,6 +101,22 @@ body
 	font-weight: 500;
 	padding: 5% 0%;
 	width: 100%;
+}
+#team
+{
+
+	background-color: #eee;
+	width: 90%;
+	height: 20%;
+	min-height: 70px;
+	margin-left: 5%;
+}
+.teamMate
+{
+	display: inline-block;
+	width:20%;
+	height: 80%;
+	background: #999;
 }
 #users
 {
