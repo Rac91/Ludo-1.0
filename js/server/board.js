@@ -1,18 +1,18 @@
 module.exports = Board;
 
-function Board(roomName, userNames) 
+function Board(roomName, userSockets) 
 {
     this.room = roomName;
     this.users = {};
 
-    for (var i=0; userNames.length; i++)
+    for (var i=0; userSockets.length; i++)
     {
     	var key = "player"+(i+1);
     	if(userNames.length==2)
     		q=i+1;				//If only two users then diagonally opposite quadrants
     	else
     		q=i;
-    	var user = new Player(q, usernames[i]);
+    	var user = new Player(q, userSockets[i].username);
 
     	this.users[key] = (user);
     }

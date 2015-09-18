@@ -68,8 +68,40 @@ ludoControllers.controller('LobbyCtrl', function ($scope, socket, $location, Aut
 
 });
 
-ludoControllers.controller('BoardCtrl', function ($scope, Authenticate) {
-	alert('In game');
+ludoControllers.controller('BoardCtrl', function ($q, $scope, Authenticate) {
+	
+	function loadScript(link) {
+		var deferred = $q.defer();
+
+	    var script = document.createElement('script'); // use global document since Angular's $document is weak
+	    script.src = link;
+	    document.body.appendChild(script);
+
+	    script.addEventListener('load', function(s) {
+	    	console.log('Loaded ' + s.srcElement.src);
+			deferred.resolve();
+		}, false);
+		
+		return deferred.promise;
+	}
+
+    $scope.dependencies =[
+               	'js/lib/three.min.js',
+               	'js/lib/stats.min.js',
+               	'js/lib/OrbitControls.js',
+               	'js/lib/Detector.js',
+               	'js/app.js'
+            ];
+ 	
+ 	$scope.promiseChain = [];
+ 	angular.forEach($scope.dependencies, function(link){
+ 		console.log('Loading '+link);
+ 		if ($scope.prevPromise)
+ 			$scope.prevPromise[$scope.prevPromise.length-1].then(loadScript(link));
+ 		else
+ 			$scope.promiseChain.push( loadScript(link) );
+ 	});
+
 });
 // socket.on('userReady', function(user){
 // 	statusDiv = document.getElementById(user).firstChild.firstChild;

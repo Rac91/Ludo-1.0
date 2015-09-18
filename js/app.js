@@ -343,16 +343,16 @@ function clickBoard()
 
 function moveCoin(movingCoin,nextTile, moveBy){
 
-	    if(movingCoin.userData.position==-1)
-	    	movingCoin.position.copy(scene.getObjectByName(objects[movingCoin.userData.start].name).position)
-	    else {
-	    	//startPoint=endPoint;
-			currentTile = movingCoin;
-			nextTile = scene.getObjectByName(movingCoin.userData.id + moveBy);
-			
-			startX = currentTile.position.x;
-			startY = currentTile.position.y;
-			startRotate = currentTile.rotation.z;
+    if(movingCoin.userData.position==-1)
+    	movingCoin.position.copy(scene.getObjectByName(objects[movingCoin.userData.start].name).position)
+    else {
+    	//startPoint=endPoint;
+		currentTile = movingCoin;
+		nextTile = scene.getObjectByName(movingCoin.userData.id + moveBy);
+	}
+		startX = currentTile.position.x;
+		startY = currentTile.position.y;
+		startRotate = currentTile.rotation.z;
 
 	deltaX = nextTile.position.x - startX;
 	deltaY = nextTile.position.y - startY;
@@ -363,26 +363,26 @@ function moveCoin(movingCoin,nextTile, moveBy){
 }
 
 function onDocumentMouseDown( event ) 
-	{
-		event.preventDefault();
-		mouse.x = ( event.clientX / renderer.domElement.width ) * 2 - 1;
-		mouse.y = - ( event.clientY / renderer.domElement.height ) * 2 + 1;
+{
+	event.preventDefault();
+	mouse.x = ( event.clientX / renderer.domElement.width ) * 2 - 1;
+	mouse.y = - ( event.clientY / renderer.domElement.height ) * 2 + 1;
 
-		raycaster.setFromCamera( mouse, camera );
-        var intersects = raycaster.intersectObjects( objects );
-        // Change color if hit block
-        if ( intersects.length > 0 ) {
-            // intersects[ 0 ].object.material.color.setHex( Math.random() * 0xffffff );
-            // if(selectedObject)
-            // {
-            	// console.log(selectedObject.id, ' clicked');
-            // }
-            selectedObject = intersects[0].object;
-            console.log(selectedObject.id, '>',selectedObject.name);
-            // selectedObject.position.z = 20;
-            render();
-        }
+	raycaster.setFromCamera( mouse, camera );
+    var intersects = raycaster.intersectObjects( objects );
+    // Change color if hit block
+    if ( intersects.length > 0 ) {
+        // intersects[ 0 ].object.material.color.setHex( Math.random() * 0xffffff );
+        // if(selectedObject)
+        // {
+        	// console.log(selectedObject.id, ' clicked');
+        // }
+        selectedObject = intersects[0].object;
+        console.log(selectedObject.id, '>',selectedObject.name);
+        // selectedObject.position.z = 20;
+        render();
     }
+}
 
 function onWindowResize() {
 
@@ -392,7 +392,6 @@ function onWindowResize() {
 	renderer.setSize( window.innerWidth, window.innerHeight );
 
 	render();
-
 }
 
 function animate() {
@@ -415,8 +414,8 @@ function animate() {
 	render();
 }
 
-function render() {
-
+function render()
+{
 	renderer.render( scene, camera );
 	stats.update();
 

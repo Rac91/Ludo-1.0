@@ -105,10 +105,10 @@ io.on('connection', function(socket){
 			{
 				userStatus[socket.username] = 'engaged';
 				userSocket = queuedUsers.shift();
-				lockUsers.push( userSocket.username );
+				lockUsers.push( userSocket );
 				userSocket.join(gameRoom);
 			}
-			var game = gameRooms[gameRoom] = new Board(gameRoom, lockUsers);
+			var game = gameRooms[gameRoom] = new Board(gameRoom, userSockets);
 			io.sockets.emit('lockUsers', lockUsers);
 		}
 		else
