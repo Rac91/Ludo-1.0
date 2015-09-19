@@ -33,7 +33,7 @@ return {
     		$cookies.remove(cookieKey);
         user = undefined;
     },
-    isLoggedIn : function(){
+    getUser : function(){
         return (user)? user : false;
     }
   };
@@ -41,7 +41,7 @@ return {
 .factory('socket', ['$rootScope', '$location', 'Authenticate', function ($rootScope, $location, Authenticate) {
   
   var socket = io.connect(),
-  	  user = Authenticate.isLoggedIn();
+  	  user = Authenticate.getUser();
   if (user)
   	{
 		socket.on('relogin', function(){
@@ -76,12 +76,12 @@ return {
 
     $rootScope.$on('$routeChangeStart', function (event) {
 
-        if (!Authenticate.isLoggedIn()) {
+        if (!Authenticate.getUser()) {
             // event.preventDefault();
             $location.path('/login');
         }
-        else
-        	$location.path('/lobby');
+        // else
+        // 	$location.path('/lobby');
     });
 
 }]);

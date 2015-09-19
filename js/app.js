@@ -76,8 +76,8 @@ function loadObject(key)
 		// loadedMesh = new THREE.Mesh( geometry,material);
 		loadedObjects[key] = [geometry, material];
 		loadedCount++;
-		if (loadedCount===toLoadCount)				
-			init();
+		// if (loadedCount===toLoadCount)				
+		// 	init();
 	});
 }
 
@@ -418,7 +418,6 @@ function render()
 {
 	renderer.render( scene, camera );
 	stats.update();
-
 }
 
 function rollDice()

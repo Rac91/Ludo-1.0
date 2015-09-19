@@ -24,7 +24,7 @@ ludoControllers.controller('LobbyCtrl', function ($scope, socket, $location, Aut
 	
 	$scope.engageUser = function (){
 		socket.emit('readyToPlay');
-		$scope.animateClass = 'slideRight';
+		// $scope.animateClass = 'slideRight';
 	};
 
 	$scope.inviteFriend = function (){
@@ -49,6 +49,15 @@ ludoControllers.controller('LobbyCtrl', function ($scope, socket, $location, Aut
 		$scope.userList[user] = 'idle';
 	});
 
+	socket.on('lockUsers', function(users){
+		if (users.indexOf(Authenticate.getUser())!=-1)
+			$location.path('/game');
+		else
+			for(var i=0; i<users.length;i++)
+				if ($scope.userList[users[i]])
+					$scope.userList[users[i]] = 'engaged';
+	});
+
 	socket.on('disconnected', function (user) {
 		$scope.userList[user] = 'dc';
 	});
@@ -68,40 +77,71 @@ ludoControllers.controller('LobbyCtrl', function ($scope, socket, $location, Aut
 
 });
 
-ludoControllers.controller('BoardCtrl', function ($q, $scope, Authenticate) {
+ludoControllers.controller('BoardCtrl', function ($q, $scope, socket, Authenticate) {
 	
-	function loadScript(link) {
+	function loadScript(index) {
 		var deferred = $q.defer();
+		console.log('Loading '+$scope.dependencies[index]);
 
-	    var script = document.createElement('script'); // use global document since Angular's $document is weak
-	    script.src = link;
+	    var script = document.createElement('script');
+	    script.src = $scope.dependencies[index];
 	    document.body.appendChild(script);
 
 	    script.addEventListener('load', function(s) {
 	    	console.log('Loaded ' + s.srcElement.src);
-			deferred.resolve();
+			deferred.resolve(index+1);
 		}, false);
 		
 		return deferred.promise;
 	}
 
     $scope.dependencies =[
-               	'js/lib/three.min.js',
-               	'js/lib/stats.min.js',
-               	'js/lib/OrbitControls.js',
-               	'js/lib/Detector.js',
-               	'js/app.js'
-            ];
- 	
- 	$scope.promiseChain = [];
- 	angular.forEach($scope.dependencies, function(link){
- 		console.log('Loading '+link);
- 		if ($scope.prevPromise)
- 			$scope.prevPromise[$scope.prevPromise.length-1].then(loadScript(link));
+       	'js/lib/three.min.js',
+       	'js/lib/stats.min.js',
+       	'js/lib/OrbitControls.js',
+       	'js/lib/Detector.js',
+       	'js/app.js'
+    ];
+	
+ 	var successLoad = function(i){
+ 		if(i<$scope.dependencies.length)
+ 		{
+ 			$scope.prevPromise = loadScript(i);
+ 			$scope.prevPromise.then(successLoad);
+ 		}
  		else
- 			$scope.promiseChain.push( loadScript(link) );
- 	});
+ 		{
+ 			$scope.setupSockets();
+ 			init();
+ 		}
+ 	};
 
+ 	$scope.prevPromise = loadScript(0);
+ 	$scope.prevPromise.then(successLoad);
+
+ 	$scope.setupSockets = function(){
+
+ 		socket.on('startGame', function(users){
+ 			console.log(users);
+ 		});
+
+ 		socket.on('turnStart', function(user){
+ 			console.log('Turn started for ' + user);
+ 		});
+
+ 		socket.on('diceRolled', function(user, value){
+ 			console.log('Dice rolled for ' + value);
+ 		});
+
+ 		socket.on('coinMoved', function(coin){
+ 			console.log('Turn end');
+ 		});
+
+ 		socket.on('turnEnd', function(user){
+ 			console.log('Turn ended for ' + user);
+ 		});
+
+ 	};
 });
 // socket.on('userReady', function(user){
 // 	statusDiv = document.getElementById(user).firstChild.firstChild;

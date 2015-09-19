@@ -1,13 +1,13 @@
 module.exports = Board;
 
-function Board(roomName, userSockets) 
+function Board(io, roomName, userSockets) 
 {
     this.room = roomName;
     this.users = {};
 
     for (var i=0; userSockets.length; i++)
     {
-    	var key = "player"+(i+1);
+    	var key = 'player'+(i+1);
     	if(userNames.length==2)
     		q=i+1;				//If only two users then diagonally opposite quadrants
     	else
@@ -16,7 +16,8 @@ function Board(roomName, userSockets)
 
     	this.users[key] = (user);
     }
-    socket.to(roomName).emit('users', this.users);
+    console.log('Emitting start game to '+roomName);
+    io.sockets.in(roomName).emit('startGame', this.users);
 }
 
 quadrantSigns = [[1,1], [-1,1], [-1,-1], [1,-1]];
@@ -29,13 +30,15 @@ function Player(quadrant, name)
 	this.ySign = quadrantSigns[quadrant][1];
 
 	this.active = false;
+
+	this.base = quadrant;
 	this.startTile = quadrant*13 + 1;
 	this.endTile = quadrant*13 - 1;
 	if (this.endTile!=-1)
 		this.endTile=52;
 	
 	var config = null; //Load saved configuration
-	if (configName)
+	if (config)
 		this.texture = config.texture;
 	else
 		this.texture = 'default';

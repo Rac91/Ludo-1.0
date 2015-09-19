@@ -39,8 +39,8 @@ function generateId()
 {
 	while(true)
 	{
-	    var text = "";
-	    var possible = "abcdefghijklmnopqrstuvwxyz012345ABCDEFGHIJKLMNOPQRSTUVWXYZ6789";
+	    var text = '';
+	    var possible = 'abcdefghijklmnopqrstuvwxyz012345ABCDEFGHIJKLMNOPQRSTUVWXYZ6789';
 
 	    for( var i=0; i < 5; i++ )
 	        text += possible.charAt(Math.floor(Math.random() * possible.length));
@@ -88,32 +88,37 @@ io.on('connection', function(socket){
 			console.log(socket.username + ' invited '  + invitee);
 		}
 		else
-			socket.emit('failure', "Couldn't find "+invitee+"!");
+			socket.emit('failure', "Couldn't find "+invitee+'!');
 	});
 
 	socket.on('readyToPlay', function(){
-		userStatus[socket.username] = 'searching';
-		queuedUsers.push(socket);
-		queueCount++;
-		console.log('Queue length ', queuedUsers.length);
-		if(queuedUsers.length>=minUsers)
+		if (userStatus[socket.username] === 'idle')
 		{
-			freezeCount = queuedUsers.length;
-			gameRoom = generateId();
-			var lockUsers = [];
-			while(--freezeCount > 0)
+			userStatus[socket.username] = 'searching';
+			queuedUsers.push(socket);
+			queueCount++;
+			console.log('Queue length ', queuedUsers.length);
+			if(queuedUsers.length>=minUsers)
 			{
-				userStatus[socket.username] = 'engaged';
-				userSocket = queuedUsers.shift();
-				lockUsers.push( userSocket );
-				userSocket.join(gameRoom);
+				freezeCount = queuedUsers.length+1;
+				gameRoom = generateId();
+				var lockUsers = [];
+				while(--freezeCount > 0)
+				{
+					userStatus[socket.username] = 'engaged';
+					userSocket = queuedUsers.shift();
+					lockUsers.push( userSocket.username );
+					userSocket.join(gameRoom);
+				}
+				console.log('Constructing board');
+				var game = gameRooms[gameRoom] = new Board(io, gameRoom, userSockets);
+				console.log('Emitting locked users');
+				io.sockets.emit('lockUsers', lockUsers);
 			}
-			var game = gameRooms[gameRoom] = new Board(gameRoom, userSockets);
-			io.sockets.emit('lockUsers', lockUsers);
-		}
-		else
-		{
-			io.sockets.in('registered').emit('userReady', socket.username );
+			else
+			{
+				io.sockets.in('registered').emit('userReady', socket.username );
+			}
 		}
 	});
 
