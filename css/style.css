@@ -48,12 +48,16 @@ body
 }
 #myArea
 {
+	position: relative;
 	display: block;
 	vertical-align: middle;
-	background-color: #323322;
-	width: 40%;
-	height: 80%;
+	background-color: #455a64;
+	width: 30%;
+	height: 70%;
 	max-height: 700px;
+	max-width: 400px;
+	border-radius:10px;
+	border:1px solid #455a64;
 
 }
 .slideLeft
@@ -103,20 +107,122 @@ body
 	width: 100%;
 }
 #team
-{
-
-	background-color: #eee;
+{ 	
+	margin-top: 5%;
+	background-color: #61757f;
 	width: 90%;
 	height: 20%;
 	min-height: 70px;
 	margin-left: 5%;
+	border-radius: 7px;
 }
+
 .teamMate
 {
 	display: inline-block;
-	width:20%;
-	height: 80%;
-	background: #999;
+	margin-top: 5%;
+	margin-left: 5px;
+
+}
+.teamMateCircle
+{
+	display: table;
+	width: 60px;
+	height: 60px;
+	background: #ff9933;
+	border-radius: 30px;
+}
+.initials
+{
+	display: table-cell;
+	vertical-align: middle;
+}
+.invites
+{
+}
+.inviteWrapper
+{
+	padding-top: 10px;
+	margin-top: 5%;
+	width: 90%;
+	height: 30px;
+	min-width: 300px;
+	font-family: 'Roboto', sans-serif;
+	color: #cdd4d7;
+	background-color: #61757f;
+	border-radius: 5px;
+}
+.invite
+{
+	display: inline-block;
+	text-align: left;
+	padding-left: 2%;
+	float: left;
+	width: 78%
+
+}
+.okBtnWrap
+{
+	display: inline-block;
+	margin-top: -2px;
+	float: left;
+	width: 10%;	
+}
+.cancelBtnWrap
+{
+
+	display: inline-block;
+	margin-top: -2px;
+	float: left;
+	width: 10%;
+}
+.okBtn
+{
+
+	width: 20px;
+	height: 20px;
+	border-radius: 10px;
+	background-color: #33CC33;
+}
+.okBtn:hover
+{
+	background-image: url('../assets/ok.png');
+}
+.cancelBtn
+{
+	width: 20px;
+	height: 20px;
+	border-radius: 10px;
+	background-color: #FF6666;
+}
+.cancelBtn:hover
+{
+	background-image: url('../assets/cancel.png');
+}
+
+#startGame
+{
+	display: table;
+	position: absolute;
+	width: 50%;
+	height: 10%;
+	height: 50px;
+	font-family: 'Roboto', sans-serif;
+	background-color: #33CC33;
+	color: #fff;
+	bottom: 10px;
+	left: 25%;
+	border-radius: 5px;
+}
+#startGame div
+{
+	display: table-cell;
+	vertical-align: middle;
+}
+
+#startGame:hover
+{
+	background-color: #00aa00;
 }
 #users
 {
@@ -250,7 +356,7 @@ input[type="text"]:focus
 	display: inline-block;
 	width: 20%;
 }
-#invite
+/*#invite
 {
 	width :50%;
 }
@@ -263,7 +369,7 @@ input[type="text"]:focus
 {
 	display: inline-block;
 	width: 20%;
-}
+}*/
 #submit:hover 
 {
   	background: #304650;

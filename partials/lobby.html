@@ -1,3 +1,6 @@
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
 <div id="messageBoard" class="fill absolute table">
 	<div id = "header">
 		<button id = "logout" ng-click="logoutUser()">
@@ -7,31 +10,40 @@
 	<div id="myArea">
 		<div id="team" align="center">
 			<div class="teamMate">
-				ff
+				<div class="teamMateCircle">
+					<div class="initials">ff</div>
+				</div>
 			</div>
 			<div class="teamMate">
-				ff
+				<div class="teamMateCircle">
+					<div class="initials">ff</div>
+				</div>
 			</div>
 			<div class="teamMate">
-				ff
+				<div class="teamMateCircle">
+					<div class="initials">ff</div>
+				</div>
 			</div>
 			<div class="teamMate">
-				ff
+				<div class="teamMateCircle">
+					<div class="initials">ff</div>
+				</div>
 			</div>
 		</div>
-		<div id = "invites" ng-repeat = "invite in invites">
-			<div id = "invite">invite from {{invite}} 
-				<div id="okBtn" >
-					<button  ng-click="acceptInvite()">
-							Ok
-					</button>	
+		<div class= "invites" ng-repeat = "invite in invites" align="center">
+			<div class="inviteWrapper">
+				<div class = "invite">invite from {{invite}} 
 				</div>
-				<div id="cancelBtn" >
-					<button  ng-click="removeInvite()">
-						Cancel
-					</button>	
+				<div class="okBtnWrap" >
+					<div class="okBtn" ng-click="acceptInvite()"></div>	
+				</div>
+				<div class="cancelBtnWrap" >
+					<div class="cancelBtn"  ng-click="removeInvite()"></div>	
 				</div>
 			</div>
+		</div>
+		<div id="startGame" align="center">
+			<div>Start Game!</div>
 		</div>		
 	</div>
 
