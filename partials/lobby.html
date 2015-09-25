@@ -7,38 +7,25 @@
 			Logout
 		</button>
 	</div>
-	<div id="myArea">
-		<div id="team" align="center">
-			<div class="teamMate">
-				<div class="teamMateCircle">
-					<div class="initials">ff</div>
-				</div>
-			</div>
-			<div class="teamMate">
-				<div class="teamMateCircle">
-					<div class="initials">ff</div>
-				</div>
-			</div>
-			<div class="teamMate">
-				<div class="teamMateCircle">
-					<div class="initials">ff</div>
-				</div>
-			</div>
-			<div class="teamMate">
-				<div class="teamMateCircle">
-					<div class="initials">ff</div>
+	<div id="lobbyId" class = 'myArea'>
+		<div id="team" align="center" >
+			<div class = 'teamMate' ng-repeat = "player in lobbyRoom">
+				<div  class = "teamMateCircle" class tooltip = "{{player}}" >
+					{{player}}
 				</div>
 			</div>
 		</div>
-		<div class= "invites" ng-repeat = "invite in invites" align="center">
-			<div class="inviteWrapper">
-				<div class = "invite">invite from {{invite}} 
+		<div id = "invites" class = "invites" ng-repeat = "(id, invite) in invites">
+			<div id = "invite" class = "invite">invite from {{invite}} 
+				<div id="okBtn" >
+					<button  name = "{{invite}}" ng-click="acceptInvite(id)">
+							Ok
+					</button>	
 				</div>
-				<div class="okBtnWrap" >
-					<div class="okBtn" ng-click="acceptInvite()"></div>	
-				</div>
-				<div class="cancelBtnWrap" >
-					<div class="cancelBtn"  ng-click="removeInvite()"></div>	
+				<div id="cancelBtn">
+					<button  name = "{{invite}}" ng-click="removeInvite(invite)">
+						Cancel
+					</button>	
 				</div>
 			</div>
 		</div>

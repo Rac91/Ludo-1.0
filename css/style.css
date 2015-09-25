@@ -46,7 +46,7 @@ body
 {
 	display: table;
 }
-#myArea
+.myArea
 {
 	position: relative;
 	display: block;

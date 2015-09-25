@@ -49,7 +49,7 @@ function generateId()
 	}
 }
 
-var userStatus = {}, userSockets = {}, invitecount = {},
+var userStatus = {}, userSockets = {}, lobbyRoom = {},userLobby = {},
 	gameRooms = [],
 	queuedUsers = [],
 	queueCount = 0,
@@ -66,7 +66,6 @@ io.on('connection', function(socket){
   			socket.username = username;
   			userSockets[username] = socket;
   			userStatus[username] = 'idle';
-  			invitecount[username] = 4;
   			socket.join('registered');
   			io.sockets.in('registered').emit('newUser', username );
   		}
@@ -79,16 +78,66 @@ io.on('connection', function(socket){
 			socket.emit('setUsers', userStatus );
 	});
 
-	socket.on('invite', function(invitee){
-		if(invitee && socket.username && userSockets[invitee]  && userStatus[invitee] =='idle' && invitecount[socket.username]>0)
+	socket.on('invite', function(inviteRequest){
+		console.log(inviteRequest);
+		lobbyId = inviteRequest['userLobby'];
+		invitee = inviteRequest['invitee']
+		if(invitee && socket.username && userSockets[invitee]  && userStatus[invitee] =='idle' && invitee != socket.username)
 		{
-			userSockets[invitee].emit('invited', socket.username );
-			invitecount[socket.username] -= 1;
+			if(!lobbyId)
+			{
+				lobbyId = generateId();
+				lobbyRoom[lobbyId] = [];
+				lobbyRoom[lobbyId].push(socket.username);
+				socket.join(lobbyId);
+			}
+			console.log('in invite',lobbyId);
+			userSockets[invitee].emit('invited', {'id' : lobbyId, 'host' : socket.username});
  			socket.emit('inviteSent');
 			console.log(socket.username + ' invited '  + invitee);
 		}
 		else
-			socket.emit('failure', "Couldn't find "+invitee+'!');
+			socket.emit('failure', "Couldn't find "+invitee+"!");
+	});
+
+	socket.on('acceptInvite', function(party){
+		// lobbyId = null;
+		// console.log(lobbyRoom);
+		// for(key in lobbyRoom)
+		// {
+		// 	if (lobbyRoom[key].indexOf(requestedUser) != -1 || lobbyRoom[key].indexOf(socket.username) != -1)
+		// 	{
+		// 		lobbyId = key;
+		// 		break;
+		// 	}
+		// }
+		// console.log(lobbyId);
+		// if(! lobbyId)
+		// {
+		// 	lobbyId = generateId();
+		// 	lobbyRoom[lobbyId] = [];
+		// 	lobbyRoom[lobbyId].push(requestedUser);
+		// 	userSockets[requestedUser].join(lobbyId);
+		// }
+		invitedLobby = party['invitedLobby'];
+		userLobby = party['userLobby']
+		console.log(invitedLobby, userLobby)
+		if (!userLobby)
+			userLobbyLen = 0;
+		else 
+			userLobbyLen = lobbyRoom[userLobby].length ;
+		if(lobbyRoom[invitedLobby].length < 4 && lobbyRoom[invitedLobby].indexOf(socket.username) == -1 && userLobbyLen < 2)
+		{
+			socket.join(invitedLobby);
+			lobbyRoom[invitedLobby].push(socket.username);
+			io.sockets.in(invitedLobby).emit('inviteAccepted',{'lobbyId' : invitedLobby, 'users': lobbyRoom[invitedLobby]});
+			console.log(lobbyRoom[invitedLobby]);
+		}
+	});
+
+	socket.on('removeInvite', function(requestedUser){
+			console.log('removing request from ' + requestedUser);
+			userSockets[requestedUser].emit('inviteRemoved', socket.username);
 	});
 
 	socket.on('readyToPlay', function(){

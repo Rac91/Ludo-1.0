@@ -18,7 +18,10 @@ ludoControllers.controller('LoginCtrl', function ($scope, $rootScope, $location,
 ludoControllers.controller('LobbyCtrl', function ($scope, socket, $location, Authenticate, $window) {
   	
   	$scope.userList = {};
-  	$scope.invites = [];
+  	$scope.lobbyId = null;
+  	$scope.invites = {};
+  	$scope.lobbyRoom = [username,"Dummy1" , "Dummy2", "Dummy3"];
+  	$scope.party = {};
   	$scope.animateClass = 'slideLeft';
   	$scope.message = 'Click Ready to join a game!';
 	
@@ -28,8 +31,16 @@ ludoControllers.controller('LobbyCtrl', function ($scope, socket, $location, Aut
 	};
 
 	$scope.inviteFriend = function (){
-		socket.emit('invite',this.user);
+		socket.emit('invite',{'userLobby' : $scope.lobbyId, 'invitee' : this.user});
 	};
+
+	$scope.acceptInvite = function(lobbyId){
+		socket.emit('acceptInvite', {'userLobby': $scope.lobbyId, 'invitedLobby': lobbyId});
+	}
+
+	$scope.removeInvite = function(requestedUser){
+		socket.emit('removeInvite', requestedUser);
+	}
 
 	$scope.logoutUser = function(){
 		socket.emit('logout');
@@ -71,59 +82,25 @@ ludoControllers.controller('LobbyCtrl', function ($scope, socket, $location, Aut
 		$location.path('/login');
 	});
 
-    socket.on('invited',function(host){
-    	$scope.invites.push(host);
+    socket.on('invited',function(inviteRequest){
+    	$scope.invites[inviteRequest['id']] = inviteRequest['host'];
     });
 
-});
-
-ludoControllers.controller('BoardCtrl', function ($q, $scope, socket, Authenticate) {
-	
-	function loadScript(index) {
-		var deferred = $q.defer();
-		console.log('Loading '+$scope.dependencies[index]);
-
-	    var script = document.createElement('script');
-	    script.src = $scope.dependencies[index];
-	    document.body.appendChild(script);
-
-	    script.addEventListener('load', function(s) {
-	    	console.log('Loaded ' + s.srcElement.src);
-			deferred.resolve(index+1);
-		}, false);
-		
-		return deferred.promise;
-	}
-
-    $scope.dependencies =[
-       	'js/lib/three.min.js',
-       	'js/lib/stats.min.js',
-       	'js/lib/OrbitControls.js',
-       	'js/lib/Detector.js',
-       	'js/app.js'
-    ];
-	
- 	var successLoad = function(i){
- 		if(i<$scope.dependencies.length)
- 		{
- 			$scope.prevPromise = loadScript(i);
- 			$scope.prevPromise.then(successLoad);
- 		}
- 		else
- 		{
- 			$scope.setupSockets();
- 			init();
- 		}
- 	};
-
- 	$scope.prevPromise = loadScript(0);
- 	$scope.prevPromise.then(successLoad);
-
- 	$scope.setupSockets = function(){
-
- 		socket.on('startGame', function(users){
- 			console.log(users);
- 		});
+    socket.on('inviteAccepted', function(lobby){
+		$scope.lobbyId = lobby['lobbyId'];
+		lobbyRoom = lobby['users'];
+		needDummy = 4 - lobbyRoom.length;
+		acceptedUser = lobbyRoom[lobbyRoom.length-1];
+		for(i=0;i<needDummy;i++)
+			lobbyRoom.push('Dummy'+ (i+1));
+		lobbyIndex = lobbyRoom.indexOf(username) 
+		lobbyRoom[0] = [username, lobbyRoom[lobbyIndex] = lobbyRoom[0]][0]
+		$scope.lobbyRoom = lobbyRoom;
+		delete $scope.invites[$scope.lobbyId];
+    });
+    socket.on('inviteRemoved', function(rejector){
+    	$window.alert(rejector + 'rejected');
+    });
 
  		socket.on('turnStart', function(user){
  			console.log('Turn started for ' + user);
@@ -141,7 +118,6 @@ ludoControllers.controller('BoardCtrl', function ($q, $scope, socket, Authentica
  			console.log('Turn ended for ' + user);
  		});
 
- 	};
 });
 // socket.on('userReady', function(user){
 // 	statusDiv = document.getElementById(user).firstChild.firstChild;
