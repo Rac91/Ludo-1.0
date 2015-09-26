@@ -58,8 +58,7 @@ var userStatus = {}, userSockets = {}, lobbyRoom = {},userLobby = {},
 	gameRooms = [],
 	queuedUsers = [],
 	twoPlayer = [], threePlayer = [], fourPlayer= [],
-	queueCount = 0,
-	minUsers = 4;
+	queueCount = 0;
 
 io.on('connection', function(socket){
 	console.log( socket.id, ' turned up. Late.');
@@ -147,10 +146,12 @@ io.on('connection', function(socket){
 	});
 
 	socket.on('readyToPlay', function(party){
+		var gameBoat = [];
+
 		minUsers = party['mode'];
-		partyUsers = party['users'];
-		required = minUsers- partyUsers.length;
-		console.log(required,partyUsers,minUsers);
+		partyUsers = party['partyUsers'];
+		required = minUsers - partyUsers.length;
+		console.log(required, partyUsers, minUsers);
 		if (required === 0)
 		{
 			for (i= 0; i<partyUsers.length; i++)
@@ -179,31 +180,31 @@ io.on('connection', function(socket){
 					fourPlayer.push(userSockets[partyUsers[i]])
 				gameBoat = fourPlayer;;
 			}
-
 		}
-		if(gameBoat.length>=minUsers)
-			{
-				freezeCount = gameBoat.length;
-				gameRoom = generateId();
-				console.log(gameRoom)
-				var lockUsers = [];
-				while(--freezeCount > 0)
-				{
-					userStatus[socket.username] = 'engaged';
-					userSocket = gameBoat.shift();
-					lockUsers.push( userSocket );
-					userSocket.join(gameRoom);
-				}
-				console.log('Constructing board');
-				var game = gameRooms[gameRoom] = new Board(io, gameRoom, lockUsers);
-				console.log('Emitting locked users', lockUsers);
-				io.sockets.emit('lockUsers', lockUsers);
-			}
-			else
-			{
-				io.sockets.in('registered').emit('userReady', socket.username );
-			}
 
+		if(gameBoat && gameBoat.length>=minUsers)
+		{
+			freezeCount = minUsers+1;
+			gameRoom = generateId();
+			console.log(gameRoom);
+			var lockUserSockets = [],
+				lockUserNames = [];
+			while(--freezeCount)
+			{
+				userStatus[socket.username] = 'engaged';
+				userSocket = gameBoat.shift();
+				lockUserSockets.push( userSocket );
+				lockUserNames.push( userSocket.username );
+				userSocket.join(gameRoom);
+			}
+			console.log('Constructing board');
+			var game = gameRooms[gameRoom] = new Board(io, gameRoom, lockUserSockets);
+			console.log('Emitting locked users', lockUserNames);
+			io.sockets.in('registered').emit('lockUsers', lockUserNames);
+		}
+		else
+			io.sockets.in('registered').emit('userReady', socket.username );
+		
 		// if (userStatus[socket.username] === 'idle')
 		// {
 		// 	userStatus[socket.username] = 'searching';

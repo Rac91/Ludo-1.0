@@ -15,7 +15,7 @@ ludoControllers.controller('LoginCtrl', function ($scope, $rootScope, $location,
 	});
 });
 
-ludoControllers.controller('LobbyCtrl', function ($scope, socket, $location, Authenticate, $window) {
+ludoControllers.controller('LobbyCtrl', function ($scope, socket, $location, Authenticate) {
   	
   	$scope.userList = {};
   	$scope.invites = {};
@@ -28,7 +28,7 @@ ludoControllers.controller('LobbyCtrl', function ($scope, socket, $location, Aut
   	$scope.message = 'Click Ready to join a game!';
 	
 	$scope.engageUser = function (){
-		 
+		$scope.party['partyUsers'] = $scope.party['partyUsers'].filter(Boolean);
 		socket.emit('readyToPlay', $scope.party);
 		// $scope.animateClass = 'slideRight';
 	};
@@ -101,9 +101,64 @@ ludoControllers.controller('LobbyCtrl', function ($scope, socket, $location, Aut
 		$scope.lobbyRoom = lobbyRoom;
 		delete $scope.invites[$scope.party['id']];
     });
+
     socket.on('inviteRemoved', function(rejector){
     	$window.alert(rejector + 'rejected');
     });
+
+});
+
+ludoControllers.controller('BoardCtrl', function ($q, $scope, socket, Authenticate) {
+	
+	function loadScript(index) {
+		var deferred = $q.defer();
+		console.log('Loading '+$scope.dependencies[index]);
+
+	    var script = document.createElement('script');
+	    script.src = $scope.dependencies[index];
+	    document.body.appendChild(script);
+
+	    script.addEventListener('load', function(s) {
+	    	console.log('Loaded ' + s.srcElement.src);
+			deferred.resolve(index+1);
+		}, false);
+		
+		return deferred.promise;
+	}
+
+    $scope.dependencies =[
+       	'js/lib/three.min.js',
+       	'js/lib/stats.min.js',
+       	'js/lib/OrbitControls.js',
+       	'js/lib/Detector.js',
+       	'js/app.js'
+    ];
+	
+ 	var successLoad = function(i){
+ 		if(i<$scope.dependencies.length)
+ 		{
+ 			$scope.prevPromise = loadScript(i);
+ 			$scope.prevPromise.then(successLoad);
+ 		}
+ 		else
+ 		{
+ 			$scope.setupSockets();
+ 			// loadObjects();
+ 		}
+ 	};
+
+ 	$scope.prevPromise = loadScript(0);
+ 	$scope.prevPromise.then(successLoad);
+
+ 	$scope.setupSockets = function(){
+
+ 		socket.on('assetsToLoad', function(textures){
+ 			console.log(textures);
+ 		});
+
+ 		socket.on('startGame', function(users){
+ 			console.log(users);
+ 		});
 
  		socket.on('turnStart', function(user){
  			console.log('Turn started for ' + user);
@@ -120,7 +175,10 @@ ludoControllers.controller('LobbyCtrl', function ($scope, socket, $location, Aut
  		socket.on('turnEnd', function(user){
  			console.log('Turn ended for ' + user);
  		});
-
+ 		
+ 		console.log('Calling server for load details');
+ 		socket.emit('readyToLoad');
+	};
 });
 // socket.on('userReady', function(user){
 // 	statusDiv = document.getElementById(user).firstChild.firstChild;
