@@ -7,9 +7,9 @@
 			Logout
 		</button>
 	</div>
-	<div id="lobbyId" class = 'myArea'>
+	<div class = 'myArea'>
 		<div id="team" align="center" >
-			<div class = 'teamMate' ng-repeat = "player in lobbyRoom">
+			<div class = 'teamMate' ng-repeat = "player in lobbyRoom track by $index">
 				<div  class = "teamMateCircle" class tooltip = "{{player}}" >
 					{{player}}
 				</div>
@@ -29,7 +29,7 @@
 				</div>
 			</div>
 		</div>
-		<div id="startGame" align="center">
+		<div id="startGame" align="center" ng-click="engageUser()">
 			<div>Start Game!</div>
 		</div>		
 	</div>

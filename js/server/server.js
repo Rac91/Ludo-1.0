@@ -49,9 +49,15 @@ function generateId()
 	}
 }
 
+function startGame(minUsers, gameBoat)
+{
+
+}
+
 var userStatus = {}, userSockets = {}, lobbyRoom = {},userLobby = {},
 	gameRooms = [],
 	queuedUsers = [],
+	twoPlayer = [], threePlayer = [], fourPlayer= [],
 	queueCount = 0,
 	minUsers = 4;
 
@@ -131,7 +137,7 @@ io.on('connection', function(socket){
 			socket.join(invitedLobby);
 			lobbyRoom[invitedLobby].push(socket.username);
 			io.sockets.in(invitedLobby).emit('inviteAccepted',{'lobbyId' : invitedLobby, 'users': lobbyRoom[invitedLobby]});
-			console.log(lobbyRoom[invitedLobby]);
+			console.log('invitedlobby: ', lobbyRoom[invitedLobby]);
 		}
 	});
 
@@ -140,35 +146,92 @@ io.on('connection', function(socket){
 			userSockets[requestedUser].emit('inviteRemoved', socket.username);
 	});
 
-	socket.on('readyToPlay', function(){
-		if (userStatus[socket.username] === 'idle')
+	socket.on('readyToPlay', function(party){
+		minUsers = party['mode'];
+		partyUsers = party['users'];
+		required = minUsers- partyUsers.length;
+		console.log(required,partyUsers,minUsers);
+		if (required === 0)
 		{
-			userStatus[socket.username] = 'searching';
-			queuedUsers.push(socket);
-			queueCount++;
-			console.log('Queue length ', queuedUsers.length);
-			if(queuedUsers.length>=minUsers)
+			for (i= 0; i<partyUsers.length; i++)
 			{
-				freezeCount = queuedUsers.length+1;
+				user = partyUsers[i]
+				userStatus[user] = 'engaged';
+				gameBoat.push(userSockets[user]);
+			}
+		}
+		else
+		{
+			if(minUsers === 2)
+			{
+				twoPlayer.push(userSockets[partyUsers[0]]);
+				gameBoat = twoPlayer;
+			}
+			else if(minUsers === 3)
+			{
+				for(i= 0; i<party['users'].length; i++)
+					threePlayer.push(userSockets[partyUsers[i]])
+				gameBoat = threePlayer;
+			}
+			else
+			{
+				for(i= 0; i<party['users'].length; i++)
+					fourPlayer.push(userSockets[partyUsers[i]])
+				gameBoat = fourPlayer;;
+			}
+
+		}
+		if(gameBoat.length>=minUsers)
+			{
+				freezeCount = gameBoat.length;
 				gameRoom = generateId();
+				console.log(gameRoom)
 				var lockUsers = [];
 				while(--freezeCount > 0)
 				{
 					userStatus[socket.username] = 'engaged';
-					userSocket = queuedUsers.shift();
-					lockUsers.push( userSocket.username );
+					userSocket = gameBoat.shift();
+					lockUsers.push( userSocket );
 					userSocket.join(gameRoom);
 				}
 				console.log('Constructing board');
-				var game = gameRooms[gameRoom] = new Board(io, gameRoom, userSockets);
-				console.log('Emitting locked users');
+				var game = gameRooms[gameRoom] = new Board(io, gameRoom, lockUsers);
+				console.log('Emitting locked users', lockUsers);
 				io.sockets.emit('lockUsers', lockUsers);
 			}
 			else
 			{
 				io.sockets.in('registered').emit('userReady', socket.username );
 			}
-		}
+
+		// if (userStatus[socket.username] === 'idle')
+		// {
+		// 	userStatus[socket.username] = 'searching';
+		// 	queuedUsers.push(socket);
+		// 	queueCount++;
+		// 	console.log('Queue length ', queuedUsers.length);
+		// 	if(queuedUsers.length>=minUsers)
+		// 	{
+		// 		freezeCount = queuedUsers.length+1;
+		// 		gameRoom = generateId();
+		// 		var lockUsers = [];
+		// 		while(--freezeCount > 0)
+		// 		{
+		// 			userStatus[socket.username] = 'engaged';
+		// 			userSocket = queuedUsers.shift();
+		// 			lockUsers.push( userSocket );
+		// 			userSocket.join(gameRoom);
+		// 		}
+		// 		console.log('Constructing board');
+		// 		var game = gameRooms[gameRoom] = new Board(io, gameRoom, lockUsers);
+		// 		console.log('Emitting locked users');
+		// 		io.sockets.emit('lockUsers', lockUsers);
+		// 	}
+		// 	else
+		// 	{
+		// 		io.sockets.in('registered').emit('userReady', socket.username );
+		// 	}
+		// }
 	});
 
 	socket.on('relogin', function(username){
