@@ -17,28 +17,25 @@ ludoControllers.controller('LoginCtrl', function ($scope, $rootScope, $location,
 
 ludoControllers.controller('LobbyCtrl', function ($scope, socket, $location, Authenticate) {
   	
-  	$scope.userList = {};
+ 	$scope.userList = {};
   	$scope.invites = {};
   	$scope.lobbyRoom = [username,'' , '', ''];
-  	$scope.party = {};
-  	$scope.party['id'] = null;
-  	$scope.party['partyUsers'] = [username];
-  	$scope.party['mode'] = 2;
+  	$scope.lobbyId = null;
+  	$scope.mode = 2;
   	$scope.animateClass = 'slideLeft';
   	$scope.message = 'Click Ready to join a game!';
-	
+
 	$scope.engageUser = function (){
-		$scope.party['partyUsers'] = $scope.party['partyUsers'].filter(Boolean);
-		socket.emit('readyToPlay', $scope.party);
+		socket.emit('readyToPlay', {'mode': $scope.mode, 'users': $scope.lobbyRoom.filter(Boolean)});
 		// $scope.animateClass = 'slideRight';
 	};
 
 	$scope.inviteFriend = function (){
-		socket.emit('invite',{'userLobby' : $scope.party['id'], 'invitee' : this.user});
+		socket.emit('invite',{'userLobby' : $scope.lobbyId, 'invitee' : this.user});
 	};
 
 	$scope.acceptInvite = function(lobbyId){
-		socket.emit('acceptInvite', {'userLobby': $scope.party['id'], 'invitedLobby': lobbyId});
+		socket.emit('acceptInvite', {'userLobby': $scope.lobbyId, 'invitedLobby': lobbyId});
 	}
 
 	$scope.removeInvite = function(requestedUser){
@@ -90,16 +87,15 @@ ludoControllers.controller('LobbyCtrl', function ($scope, socket, $location, Aut
     });
 
     socket.on('inviteAccepted', function(lobby){
-    	$scope.party['id'] = lobby['lobbyId'];
-    	$scope.party['partyUsers'] = lobby['users'];
 		lobbyRoom = lobby['users'];
+		$scope.lobbyId = lobby['lobbyId'];
 		needDummy = 4 - lobbyRoom.length;
 		for(i=0;i<needDummy;i++)
 			lobbyRoom.push('');
 		lobbyIndex = lobbyRoom.indexOf(username) 
 		lobbyRoom[0] = [username, lobbyRoom[lobbyIndex] = lobbyRoom[0]][0]
 		$scope.lobbyRoom = lobbyRoom;
-		delete $scope.invites[$scope.party['id']];
+		delete $scope.invites[$scope.lobbyId];
     });
 
     socket.on('inviteRemoved', function(rejector){

@@ -149,7 +149,7 @@ io.on('connection', function(socket){
 		var gameBoat = [];
 
 		minUsers = party['mode'];
-		partyUsers = party['partyUsers'];
+		partyUsers = party['users'];
 		required = minUsers - partyUsers.length;
 		console.log(required, partyUsers, minUsers);
 		if (required === 0)
