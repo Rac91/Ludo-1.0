@@ -67,7 +67,6 @@ io.on('connection', function(socket){
   			userSockets[username] = socket;
   			userStatus[username] = 'idle';
   			socket.join('registered');
-  			socket.emit('registered', username);
   			io.sockets.in('registered').emit('newUser', username );
   		}
   		else

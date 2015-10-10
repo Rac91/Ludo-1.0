@@ -8,7 +8,7 @@ ludoControllers.controller('LoginCtrl', function ($scope, $rootScope, $location,
 			socket.emit('register', username);
 	};
 
-	socket.on('registered', function(user){
+	socket.on('newUser', function(user){
 		Authenticate.setUser(user);
 		console.log('Redirecting to home');
 		$location.path('/lobby');
@@ -21,7 +21,7 @@ ludoControllers.controller('LobbyCtrl', function ($scope, socket, $location, Aut
   	$scope.invites = {};
   	$scope.lobbyRoom = [username,'' , '', ''];
   	$scope.lobbyId = null;
-  	$scope.mode = 4;
+  	$scope.mode = 2;
   	$scope.animateClass = 'slideLeft';
   	$scope.message = 'Click Ready to join a game!';
 
@@ -150,7 +150,20 @@ ludoControllers.controller('BoardCtrl', function ($q, $scope, socket, Authentica
  	$scope.setupSockets = function(){
 
  		socket.on('assetsToLoad', function(textures){
+ 			
+ 			console.log('To load');
  			console.log(textures);
+
+			toLoad = {  'coin': ['texturedDabba.json', 'brick.jpg'],
+			   			'fort': ['fenceSingle.json', 'bark.jpg', 'wood.jpg', 'woodLight.jpg'],
+			   			'base': ['grassTexture30.png'] };
+   			toLoadCount = Object.keys(toLoad).length;
+
+   			loadCompleteCallback = function(){
+ 			socket.emit('texturesLoaded');
+ 			};
+ 			
+			loadObjects();
  		});
 
  		socket.on('startGame', function(users){

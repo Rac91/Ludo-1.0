@@ -7,10 +7,10 @@ function Board(io, roomName, userSockets)
     this.users = {};
 
 	console.log('Constructing board for game room ' + roomName + ' with '+ userSockets.length + ' players in it');
-	console.log(userSockets);
+	// console.log(userSockets);
 
 	quadrantSigns = [ [1,1], [-1,1], [-1,-1], [1,-1] ];
-    this.gameTextures = [];
+    this.gameTextures = {};
 
     for (var i=0; i < userSockets.length; i++)
     {
@@ -45,14 +45,28 @@ function Board(io, roomName, userSockets)
 		if (this.endTile!=-1)
 			this.endTile=52;
 		
-		var config = null; //Load saved configuration
-		if (config)
-			this.texture = config.texture;
+		var loadoutSets = null; //Load saved configuration
+		if (loadoutSets)
+		{
+			var loadoutKeys = Object.keys(config); 
+			for (var i=0; i < loadoutKeys.length; i++)
+			{
+				var key = loadoutKeys[i],
+					texture = loadoutSets[ key ];
+				if ( !(_.contains( board.gameTextures, texture)) )
+					board.gameTextures[key] =texture;
+			}
+			// this.texture = config.texture;
+		}
 		else
-			this.texture = 'default';
+		{
+			board.gameTextures['coin_default'] = [];
+			board.gameTextures['base_default'] = [];
+			board.gameTextures['fort_default'] = [];
+		}
 
-		if ( !(_.contains( board.gameTextures, this.texture)) )
-			board.gameTextures.push(this.texture);
+		// if ( !(_.contains( board.gameTextures, this.texture)) )
+		// 	board.gameTextures.push(this.texture);
 
 		this.coins = [];
 		for(var i=0;i<4;i++)

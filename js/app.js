@@ -28,15 +28,17 @@ var boardState = 0;
 var objectLoader;
 var	toLoad = { 'coin': ['texturedDabba.json', 'brick.jpg'],
 			   'fence': ['fence.json', 'bark.jpg', 'wood.jpg', 'woodLight.jpg'] },
-	toLoadCount = Object.keys(toLoad).length;
+	toLoadCount;
 var loadedObjects={},
 	loadedTextures = {},
-	loadedCount=0;
+	loadedCount=0,
+	loadCompleteCallback;
 
-loadObjects();
+// loadObjects();
 
 function loadObjects()
 {
+	console.log('Loading objects');
 	objectLoader = new THREE.JSONLoader();
 	objectLoader.showStatus = true;
 
@@ -44,41 +46,70 @@ function loadObjects()
 	for(var i=0;i<toLoadCount;i++)
 	{
 		key = keys[i];
-		images = toLoad[key];
-		for(var j=1; j<images.length;j++)
-			loadTextures(key, images[j]);
+		assets = toLoad[key];
+		for(var j=0; j<assets.length;j++)
+		{
+			if(assets[j].indexOf('.json') === -1)
+			{
+				console.log('Loading image: '+ assets[j]);
+				loadTextures(key, assets[j]);
+			}
+		}
 	}
 }
 
 function loadTextures(key, image)
 {
-	THREE.ImageUtils.loadTexture(image, THREE.UVMapping, function (texture) {
+	url = 'assets/'+ image;
+	THREE.ImageUtils.loadTexture(url, THREE.UVMapping, function (texture) {
 		if(!loadedTextures[key])
 			loadedTextures[key] = {};
 		loadedTextures[key][image] = texture;
-		if(Object.keys(loadedTextures[key]).length+1===toLoad[key].length)
+		if(Object.keys(loadedTextures[key]).length+1 >= toLoad[key].length)
 			loadObject(key);
+		console.log('Loaded image: ' + image);
 	});
 }
 
 function loadObject(key)
 {
 	source = toLoad[key][0];
-	objectLoader.load( source, function(geometry, materials) {
-		textures = loadedTextures[key];
-		for(var i=0;i<materials.length;i++)
-		{
-			texName = materials[i].name;
-			if (textures[texName])
-				materials[i].map = textures[texName];
-		}
-		var material = new THREE.MeshFaceMaterial( materials );
-		// loadedMesh = new THREE.Mesh( geometry,material);
+	textures = loadedTextures[key];
+	if(source.indexOf('.json')!=-1)
+	{
+		url = 'assets/'+ source;
+		objectLoader.load( url, function(geometry, materials) {
+			
+			for(var i=0;i<materials.length;i++)
+			{
+				texName = materials[i].name;
+				if (textures[texName])
+					materials[i].map = textures[texName];
+			}
+			var material = new THREE.MeshFaceMaterial( materials );
+			// loadedMesh = new THREE.Mesh( geometry,material);
+			loadedObjects[key] = [geometry, material];
+			loadedCount++;
+			if (loadedCount===toLoadCount)			
+				loadCompleteCallback();
+			console.log("Loaded: "+loadedCount+"/"+toLoadCount);
+		});
+	}
+	else
+	{
+		texture = textures[source];
+		texture.wrapS = THREE.RepeatWrapping; 
+		texture.wrapT = THREE.RepeatWrapping;
+		texture.repeat.set( 3, 3 ); 
+		material = new THREE.MeshLambertMaterial({ map : texture });
+		geometry = new THREE.PlaneGeometry(6*tileSize, 6*tileSize);
+		
 		loadedObjects[key] = [geometry, material];
 		loadedCount++;
-		// if (loadedCount===toLoadCount)				
-		// 	init();
-	});
+		if (loadedCount===toLoadCount)			
+			loadCompleteCallback();
+		console.log('Loaded '+source);
+	}
 }
 
 function init() 
