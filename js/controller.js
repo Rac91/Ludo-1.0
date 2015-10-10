@@ -154,16 +154,24 @@ ludoControllers.controller('BoardCtrl', function ($q, $scope, socket, Authentica
  			console.log('To load');
  			console.log(textures);
 
-			toLoad = {  'coin': ['texturedDabba.json', 'brick.jpg'],
+			toLoad = {  //'coin': ['redCoin.json'],
+						'coin': ['texturedDabba.json', 'brick.jpg'],
 			   			'fort': ['fenceSingle.json', 'bark.jpg', 'wood.jpg', 'woodLight.jpg'],
-			   			'base': ['grassTexture30.png'] };
+			   			'base': ['grassTexture30.png'],
+			   			'path': ['mudPath32.png'],
+			   			'road': ['cementPath32.png']};
    			toLoadCount = Object.keys(toLoad).length;
 
    			loadCompleteCallback = function(){
- 			socket.emit('texturesLoaded');
+	 			socket.emit('texturesLoaded');
  			};
  			
 			loadObjects();
+ 		});
+
+ 		socket.on('userInit', function(userObj){
+ 			console.log(userObj);
+	 		init(userObj);
  		});
 
  		socket.on('startGame', function(users){

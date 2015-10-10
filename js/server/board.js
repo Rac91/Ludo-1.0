@@ -9,13 +9,13 @@ function Board(io, roomName, userSockets)
 	console.log('Constructing board for game room ' + roomName + ' with '+ userSockets.length + ' players in it');
 	// console.log(userSockets);
 
-	quadrantSigns = [ [1,1], [-1,1], [-1,-1], [1,-1] ];
+	quadrantSigns = [ [-1,1], [1,1], [1,-1], [-1,-1] ];
     this.gameTextures = {};
 
     for (var i=0; i < userSockets.length; i++)
     {
-    	var key = 'player'+(i+1),
-    		userSocket = userSockets[i];
+    	var userSocket = userSockets[i],
+    		key = userSocket.username;
     	
     	if(i===1 && userSockets.length==2)
     		q=i+1;				//If only two users then diagonally opposite quadrants
@@ -23,7 +23,7 @@ function Board(io, roomName, userSockets)
     		q=i;
 
     	console.log('Creating player object for '+ userSocket.username);
-    	var user = new Player(this, q, userSocket.username);
+    	var user = new Player(this, q, key);
 
     	setupBoardListeners(this, userSocket);
     	this.users[key] = user;
@@ -36,6 +36,7 @@ function Board(io, roomName, userSockets)
 
 		this.xSign = quadrantSigns[quadrant][0],
 		this.ySign = quadrantSigns[quadrant][1];
+		this.startRotation = (q-2)*Math.PI/2;
 
 		this.active = false;
 
@@ -97,6 +98,7 @@ function Board(io, roomName, userSockets)
 
 		socket.on('texturesLoaded', function(){
 			console.log(socket.username + ' textures loaded');
+			socket.emit('userInit', board.users[socket.username]);
 		});
 
 		console.log('Sockets ready for user ' + socket.username);

@@ -9,7 +9,8 @@ var tileIdentifier = 'tile',
 	coinIdentifier = 'coin',
 	playerIdentifier = 'player';
 
-var objects = [];
+var objects = [],
+	coins = [];
 var selectedObject;
 var currentIndex = 0,endPoint=0,startPoint=0;
 var cube, movingCoin,nextTIle;
@@ -98,12 +99,17 @@ function loadObject(key)
 	else
 	{
 		texture = textures[source];
-		texture.wrapS = THREE.RepeatWrapping; 
-		texture.wrapT = THREE.RepeatWrapping;
-		texture.repeat.set( 3, 3 ); 
-		material = new THREE.MeshLambertMaterial({ map : texture });
-		geometry = new THREE.PlaneGeometry(6*tileSize, 6*tileSize);
+		if (key ==='base')
+		{
+			geometry = new THREE.PlaneGeometry(6*tileSize, 6*tileSize);
+			texture.wrapS = THREE.RepeatWrapping; 
+			texture.wrapT = THREE.RepeatWrapping;
+			texture.repeat.set(3,3);
+		} 
+		else
+			geometry = new THREE.PlaneGeometry(tileSize, tileSize);
 		
+		material = new THREE.MeshLambertMaterial({ map : texture });
 		loadedObjects[key] = [geometry, material];
 		loadedCount++;
 		if (loadedCount===toLoadCount)			
@@ -112,7 +118,7 @@ function loadObject(key)
 	}
 }
 
-function init() 
+function init(user) 
 {
 	camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 2000 );
 	camera.position.x =  camera.position.y = -7 * tileSize;
@@ -124,8 +130,8 @@ function init()
 
 	controls.maxPolarAngle = 2*Math.PI/5;
 
-	controls.minAzimuthAngle = -Math.PI/2;
-	controls.maxAzimuthAngle = 0;
+	controls.minAzimuthAngle = user.startRotation;
+	controls.maxAzimuthAngle = user.startRotation + Math.PI/2;
 
 	controls.addEventListener( 'change', render );
 
@@ -134,15 +140,58 @@ function init()
     scene.add(axes);
 	scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
 
-	var tile = new THREE.PlaneBufferGeometry (tileSize*0.9, tileSize*0.9, 10, 10);
+	light = new THREE.DirectionalLight( 0xffffff );
+	light.position.set( 1, 1, 1 );
+	// scene.add( light );
+
+	light = new THREE.DirectionalLight( 0x002288 );
+	light.position.set( -1, -1, -1 );
+	// scene.add( light );
+
+	light = new THREE.AmbientLight( 0xdddddd );
+	scene.add( light );
+
+	// renderer
+
+	renderer = new THREE.WebGLRenderer( { antialias: false } );
+	renderer.setClearColor( scene.fog.color );
+	renderer.setPixelRatio( window.devicePixelRatio );
+	renderer.setSize( window.innerWidth, window.innerHeight );
+
+	document.body.appendChild( renderer.domElement );
+
+	stats = new Stats();
+	stats.domElement.style.position = 'absolute';
+	stats.domElement.style.top = '0px';
+	stats.domElement.style.zIndex = 100;
+	document.body.appendChild( stats.domElement );
+
+
+	raycaster = new THREE.Raycaster();
+	mouse = new THREE.Vector2();
+
+	window.addEventListener( 'resize', onWindowResize, false );
+	document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+	document.addEventListener( 'click', clickBoard, false );
+
+	buildBoard();
+	initUser(user);
+}
+
+function buildBoard()
+{
+	// var tile = new THREE.PlaneBufferGeometry (tileSize*0.9, tileSize*0.9, 10, 10);
 	// var img = new THREE.MeshBasicMaterial({ 
 	//     map:THREE.ImageUtils.loadTexture('img/woodtile.jpg')
 	//  });
 	// img.map.needsUpdate = true;
-    var material = new THREE.MeshPhongMaterial({
-	  color: 0xdddddd, 
-	  wireframe: true
-	});
+ //    var material = new THREE.MeshPhongMaterial({
+	//   color: 0xdddddd, 
+	//   wireframe: true
+	// });
+
+	var tile = loadedObjects['path'][0], 
+		material = loadedObjects['path'][1];
     // img.map.needsUpdate = true;
 
     // var offset = -tileCount * tileSize/2;
@@ -221,105 +270,31 @@ function init()
 	    scene.add(plane);
 	    objects.push(plane);
 	}
-
-	light = new THREE.DirectionalLight( 0xffffff );
-	light.position.set( 1, 1, 1 );
-	// scene.add( light );
-
-	light = new THREE.DirectionalLight( 0x002288 );
-	light.position.set( -1, -1, -1 );
-	// scene.add( light );
-
-	light = new THREE.AmbientLight( 0xdddddd );
-	scene.add( light );
-
-	// renderer
-
-	renderer = new THREE.WebGLRenderer( { antialias: false } );
-	renderer.setClearColor( scene.fog.color );
-	renderer.setPixelRatio( window.devicePixelRatio );
-	renderer.setSize( window.innerWidth, window.innerHeight );
-
-	document.body.appendChild( renderer.domElement );
-
-	stats = new Stats();
-	stats.domElement.style.position = 'absolute';
-	stats.domElement.style.top = '0px';
-	stats.domElement.style.zIndex = 100;
-	document.body.appendChild( stats.domElement );
-
-
-	raycaster = new THREE.Raycaster();
-	mouse = new THREE.Vector2();
-
-	window.addEventListener( 'resize', onWindowResize, false );
-	document.addEventListener( 'mousedown', onDocumentMouseDown, false );
-	document.addEventListener( 'click', clickBoard, false );
-
-	initUser()
-	animate();
 }
 
-function initUser()
+function initUser(user)
 {
 	var geometry = loadedObjects['coin'][0];
 	var material = loadedObjects['coin'][1];
 
-	var a = 75;
-	var b = 100;
-	xSign = [-1, -1, 1, 1];
-	ySign = [-1, 1, 1,-1];
-	
-	for(var i=0; i<4;i++)
-		{   
-			//User profile
-			var coins = [];
-			var playerDict = {};
+	var a =  75;
+	var b =  100;
 
-			//initilize coins
-			x=xSign[i];
-			y=ySign[i];
-			cube = new THREE.Mesh( geometry, material );
-			cube.position.copy( new THREE.Vector3( a*x, b*y, 10 ));
-			cube.name = playerIdentifier + (i+1) + coinIdentifier + '0';
-			cube.userData.position = -1;
-			cube.userData.dice = 0;
-			cube.userData.start = i*13;
-			scene.add( cube );
-			objects.push( cube );
-			coins.push(cube);
+	positions = [ 	[user.xSign * a, user.ySign * a], 
+				  	[user.xSign * a, user.ySign * b], 
+				  	[user.xSign * b, user.ySign * a], 
+				  	[user.xSign * b, user.ySign * b] ];
 
-			cube = new THREE.Mesh( geometry, material );
-			cube.position.copy(new THREE.Vector3( b*x, a*y, 10 ));
-			cube.name = playerIdentifier+ (i+1) + coinIdentifier + '1';
-			cube.userData.position = -1;
-			scene.add( cube );
-			objects.push( cube );
-			coins.push(cube);
-
-			cube = new THREE.Mesh( geometry, material );
-			cube.position.copy(new THREE.Vector3( a*x, a*y, 10 ));
-			cube.name = playerIdentifier + (i+1) + coinIdentifier + '2';
-			cube.userData.position = -1;
-			scene.add( cube );
-			objects.push( cube );
-			coins.push(cube);
-
-			cube = new THREE.Mesh( geometry, material );
-			cube.position.copy(new THREE.Vector3( b*x, b*y, 10 ));
-			cube.name = playerIdentifier + (i+1) + coinIdentifier + '3';
-			cube.userData.position = -1;
-			scene.add( cube );
-			objects.push( cube );
-			coins.push(cube);
-
-			playerDict["coins"]   = coins;
-			playerDict["dice"] = 0; 
-			user['PLAYER' + (i + 1)] = playerDict;
-			user['remaining'] = 0;
-			user['active']    = false;
-		}
-
+	for (i=0;i<positions.length;i++)
+	{
+		coin = new THREE.Mesh( geometry, material );
+		coin.position.copy( new THREE.Vector3( positions[i][0], positions[i][1], 10 ));
+		coin.name = user.name + coinIdentifier + i;
+		coin.userData.position = -1;
+		scene.add( coin );
+		objects.push( coin );
+		coins.push(coin);
+	}
 }
 
 function clickBoard()
