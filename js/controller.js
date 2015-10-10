@@ -8,7 +8,7 @@ ludoControllers.controller('LoginCtrl', function ($scope, $rootScope, $location,
 			socket.emit('register', username);
 	};
 
-	socket.on('newUser', function(user){
+	socket.on('registered', function(user){
 		Authenticate.setUser(user);
 		console.log('Redirecting to home');
 		$location.path('/lobby');
@@ -21,7 +21,7 @@ ludoControllers.controller('LobbyCtrl', function ($scope, socket, $location, Aut
   	$scope.invites = {};
   	$scope.lobbyRoom = [username,'' , '', ''];
   	$scope.lobbyId = null;
-  	$scope.mode = 2;
+  	$scope.mode = 4;
   	$scope.animateClass = 'slideLeft';
   	$scope.message = 'Click Ready to join a game!';
 
