@@ -5,6 +5,8 @@ function Board(io, roomName, userSockets)
 {
     this.room = roomName;
     this.users = {};
+    this.readyUsers = [];
+    this.sockets = {};
 
 	console.log('Constructing board for game room ' + roomName + ' with '+ userSockets.length + ' players in it');
 	// console.log(userSockets);
@@ -27,6 +29,7 @@ function Board(io, roomName, userSockets)
 
     	setupBoardListeners(this, userSocket);
     	this.users[key] = user;
+    	this.sockets[key] = userSocket;
     	console.log(key + ' ready');
     }
 
@@ -99,6 +102,19 @@ function Board(io, roomName, userSockets)
 		socket.on('texturesLoaded', function(){
 			console.log(socket.username + ' textures loaded');
 			socket.emit('userInit', board.users[socket.username]);
+		});
+
+		socket.on('boardBuilt',function(){
+			for(var i=0;i<board.readyUsers.length;i++)
+			{
+				user = board.readyUsers[i];
+				board.sockets[user].emit('boardsBuilt', board.users[socket.username]);			//Emit to already ready user
+				socket.emit('boardsBuilt', board.users[user]);									//Emit to the user that just completed
+			}
+			board.readyUsers.push(socket.username);
+
+			if(board.readyUsers.length === Object.keys(board.users).length)
+				io.sockets.in(board.room).emit('startGame');
 		});
 
 		console.log('Sockets ready for user ' + socket.username);

@@ -14,7 +14,7 @@ var objects = [],
 var selectedObject;
 var currentIndex = 0,endPoint=0,startPoint=0;
 var cube, movingCoin,nextTIle;
-var user = {};
+var user;
 
 // init();
 // initUser();
@@ -104,12 +104,12 @@ function loadObject(key)
 			geometry = new THREE.PlaneGeometry(6*tileSize, 6*tileSize);
 			texture.wrapS = THREE.RepeatWrapping; 
 			texture.wrapT = THREE.RepeatWrapping;
-			texture.repeat.set(3,3);
+			texture.repeat.set(9,9);
 		} 
 		else
 			geometry = new THREE.PlaneGeometry(tileSize, tileSize);
 		
-		material = new THREE.MeshLambertMaterial({ map : texture });
+		var material = new THREE.MeshLambertMaterial({ map : texture });
 		loadedObjects[key] = [geometry, material];
 		loadedCount++;
 		if (loadedCount===toLoadCount)			
@@ -118,7 +118,7 @@ function loadObject(key)
 	}
 }
 
-function init(user) 
+function init(user, socket) 
 {
 	camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 2000 );
 	camera.position.x =  camera.position.y = -7 * tileSize;
@@ -138,7 +138,7 @@ function init(user)
 	scene = new THREE.Scene();
     var axes = new THREE.AxisHelper(200);
     scene.add(axes);
-	scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
+	// scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
 
 	light = new THREE.DirectionalLight( 0xffffff );
 	light.position.set( 1, 1, 1 );
@@ -154,7 +154,7 @@ function init(user)
 	// renderer
 
 	renderer = new THREE.WebGLRenderer( { antialias: false } );
-	renderer.setClearColor( scene.fog.color );
+	// renderer.setClearColor( scene.fog.color );
 	renderer.setPixelRatio( window.devicePixelRatio );
 	renderer.setSize( window.innerWidth, window.innerHeight );
 
@@ -176,6 +176,7 @@ function init(user)
 
 	buildBoard();
 	initUser(user);
+	socket.emit('boardBuilt');
 }
 
 function buildBoard()
@@ -294,6 +295,24 @@ function initUser(user)
 		scene.add( coin );
 		objects.push( coin );
 		coins.push(coin);
+	}
+
+	base = new THREE.Mesh( loadedObjects['base'][0], loadedObjects['base'][1] );
+	base.position.copy( new THREE.Vector3( user.xSign * 4.5 * tileSize, user.ySign * 4.5 * tileSize, 0 ));
+	scene.add( base );
+
+	var fortObject = loadedObjects['fort'][0], 
+		fortMaterial = loadedObjects['fort'][1];
+	for(var i=0;i<16;i++)
+	{
+		var fort  = new THREE.Mesh( fortObject, fortMaterial );
+		fort.position.copy( new THREE.Vector3( user.xSign * (i*0.3+2.5) * tileSize, user.ySign * 1 * tileSize, 20 ));
+		scene.add( fort );
+
+		var fort  = new THREE.Mesh( fortObject, fortMaterial );
+		fort.position.copy( new THREE.Vector3( user.xSign * 1 * tileSize, user.ySign * (i*0.3+2) * tileSize, 20 ));
+		fort.rotation.z = Math.PI/2;
+		scene.add( fort );
 	}
 }
 

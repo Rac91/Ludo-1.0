@@ -106,7 +106,10 @@ ludoControllers.controller('LobbyCtrl', function ($scope, socket, $location, Aut
 });
 
 ludoControllers.controller('BoardCtrl', function ($q, $scope, socket, Authenticate) {
-	
+
+	$scope.serverMessage = ''
+	$scope.showMessage = false;
+
 	function loadScript(index) {
 		var deferred = $q.defer();
 		console.log('Loading '+$scope.dependencies[index]);
@@ -116,7 +119,8 @@ ludoControllers.controller('BoardCtrl', function ($q, $scope, socket, Authentica
 	    document.body.appendChild(script);
 
 	    script.addEventListener('load', function(s) {
-	    	console.log('Loaded ' + s.srcElement.src);
+	    	target = s.target || s.srcElement;
+	    	console.log('Loaded ' + target.src);
 			deferred.resolve(index+1);
 		}, false);
 		
@@ -157,7 +161,7 @@ ludoControllers.controller('BoardCtrl', function ($q, $scope, socket, Authentica
 			toLoad = {  //'coin': ['redCoin.json'],
 						'coin': ['texturedDabba.json', 'brick.jpg'],
 			   			'fort': ['fenceSingle.json', 'bark.jpg', 'wood.jpg', 'woodLight.jpg'],
-			   			'base': ['grassTexture30.png'],
+			   			'base': ['grassTexture32.png'],
 			   			'path': ['mudPath32.png'],
 			   			'road': ['cementPath32.png']};
    			toLoadCount = Object.keys(toLoad).length;
@@ -171,11 +175,20 @@ ludoControllers.controller('BoardCtrl', function ($q, $scope, socket, Authentica
 
  		socket.on('userInit', function(userObj){
  			console.log(userObj);
-	 		init(userObj);
+	 		init(userObj, socket);
+	 		user = userObj;
+ 		});
+
+ 		socket.on('boardsBuilt',function(userObj){
+ 			console.log(userObj.name+' is also ready');
+ 			initUser(userObj, socket);
  		});
 
  		socket.on('startGame', function(users){
- 			console.log(users);
+ 			console.log('Game Start!');
+ 			$scope.serverMessage = 'Game Start!'
+ 			$scope.showMessage = true;
+ 			animate();
  		});
 
  		socket.on('turnStart', function(user){

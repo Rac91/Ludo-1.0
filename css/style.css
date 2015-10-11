@@ -29,11 +29,6 @@ body
 	width: 20%;
 	margin:20% auto;
 }
-#message
-{
-	display: none;
-	text-align: center;
-}
 .fill
 {
 	width:100%;
@@ -132,7 +127,7 @@ body
 	background: #ff9933;
 	border-radius: 30px;
 }
-.initials
+.middleCell
 {
 	display: table-cell;
 	vertical-align: middle;
@@ -398,3 +393,72 @@ input[type="text"]:focus
 	left:100%;
     opacity: 0;	
 }
+#message
+{
+	text-align: center;
+	font-size: 1.5em;
+	color: white;
+	opacity: 0;
+}
+#message.alertClass-add
+{
+    animation: 2s blowText;
+    -webkit-animation: 2s blowText;
+    -moz-animation: 2s blowText;
+    -ms-animation: 2s blowText;
+    -o-animation: 2s blowText;
+}
+@-webkit-keyframes blowText {
+  from{
+    -ms-transform: scale(0.5,0.5);
+    -webkit-transform: scale(0.5,0.5);
+    transform: scale(0.5,0.5);
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  60% {
+    opacity: 1;
+  }
+  to{
+    -ms-transform: scale(1.5,1.5);
+    -webkit-transform: scale(1.5,1.5);
+    transform: scale(1.5,1.5);
+    opacity: 0;
+  }
+}
+@keyframes blowText {
+  from{
+    -ms-transform: scale(0.5,0.5); /* IE 9 */
+    -webkit-transform: scale(0.5,0.5); /* Safari */
+    transform: scale(0.5,0.5);
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  60% {
+    opacity: 1;
+  }
+  to{
+    -ms-transform: scale(1.5,1.5);
+    -webkit-transform: scale(1.5,1.5);
+    transform: scale(1.5,1.5);
+    opacity: 0;
+  }
+}
+/*
+  45% {
+    -ms-transform: scale(0.9,0.9);
+    -webkit-transform: scale(0.9,0.9);
+    transform: scale(0.9,0.9);
+    opacity: 1;
+  }
+  55% {
+    -ms-transform: scale(1.1,1.1);
+    -webkit-transform: scale(1.1,1.1); 
+    transform: scale(1.1,1.1);
+    opacity: 1;
+  }
+*/
