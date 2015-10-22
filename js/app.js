@@ -196,7 +196,8 @@ function buildBoard()
     // img.map.needsUpdate = true;
 
     // var offset = -tileCount * tileSize/2;
-    var parallelDirection;
+    var parallelDirection,
+    	turnTilesIndices = [0,5,6,11,12];
     for(var i=0;i<13;i++)
     {
     	var a,b;
@@ -219,15 +220,22 @@ function buildBoard()
 	    	parallelDirection = 0;
 	    }
 
+	    movementDict = {};
+	    if (turnTilesIndices.index(i)!=-1)
+	    	movementDict['turn']=true;
+
 	    //Player1 surround
 		var plane = new THREE.Mesh(tile, material);
 	    plane.position.y = (a) * tileSize ;
 	    plane.position.x = (b) * tileSize;
-	    plane.name =  + i;
-	    plane.userData.move =false;
-	    plane.userData.id=i;
-	    plane.userData.next=i+1;
 	    plane.rotation.z = parallelDirection;
+	    
+	    plane.name =  tileIdentifier + i;
+	    plane.userData.movement=movementDict;
+	    plane.userData.movement['default']  = tileIdentifier+(i+1);
+	    if(i===12)
+	    	plane.userData.movement['player2']  = 'player2'+0;
+	    
 	    scene.add(plane);
 	    objects.push(plane);
 
@@ -235,11 +243,14 @@ function buildBoard()
 	    var plane = new THREE.Mesh(tile, material);
 	    plane.position.y = (b) * tileSize ;
 	    plane.position.x = (-a) * tileSize;
-	    plane.name = tileIdentifier + (i + 13);
-	    plane.userData.move =false;
-	    plane.userData.id=i+13;
-	    plane.userData.next=i+14;
 	    plane.rotation.z = parallelDirection+Math.PI/2;
+	    
+	    plane.name = tileIdentifier + (i + 13);
+	    plane.userData.movement=movementDict;
+	    plane.userData.movement['default']  = tileIdentifier+(i+14);
+	    if(i===12)
+	    	plane.userData.movement['player3']  = 'player3'+0;
+	    
 	    scene.add(plane);
 	    objects.push(plane);
 
@@ -247,27 +258,33 @@ function buildBoard()
 	    var plane = new THREE.Mesh(tile, material);
 	    plane.position.y = (-a) * tileSize ;
 	    plane.position.x = (-b) * tileSize;
-	    plane.name = tileIdentifier + (i + 26);
-	    plane.userData.move =false;
-	    plane.userData.id=i+26;
-	    plane.userData.next=i+27;
 	    plane.rotation.z = parallelDirection+Math.PI;
+
+	    plane.name = tileIdentifier + (i + 26);
+	    plane.userData.movement=movementDict;
+	    plane.userData.movement['default']  = tileIdentifier+(i+27);
+	    if(i===12)
+	    	plane.userData.movement['player4']  = 'player4'+0;
+
 	    scene.add(plane);
 	    objects.push(plane);
 
+	    //Player4 surround
 	    var plane = new THREE.Mesh(tile, material);
 	    plane.position.y = (-b) * tileSize ;
 	    plane.position.x = (a) * tileSize;
-	    plane.name = tileIdentifier + (i + 39);
-	    plane.userData.id=i+39;
 	    plane.rotation.z = parallelDirection+3*Math.PI/2;
-	    plane.userData.move =false;
+
+	    plane.name = tileIdentifier + (i + 39);
+	    plane.userData.movement=movementDict;
 	    if(i<12)
-	    	plane.userData.next=i+40;
+	    	plane.userData.movement={'default':tileIdentifier+(i+40)};
 	    else
 	    {
-		    plane.userData.next=0;
+		    plane.userData.movement={'default':tileIdentifier+0};
+		    plane.userData.movement['player1']  = 'player1'+0;
 	    }
+
 	    scene.add(plane);
 	    objects.push(plane);
 	}
