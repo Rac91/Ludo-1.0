@@ -221,7 +221,7 @@ function buildBoard()
 	    }
 
 	    movementDict = {};
-	    if (turnTilesIndices.index(i)!=-1)
+	    if (turnTilesIndices.indexOf(i)!=-1)
 	    	movementDict['turn']=true;
 
 	    //Player1 surround
