@@ -1,42 +1,47 @@
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<div id="messageBoard" class="fill absolute table">
-	<div id = "header">
-		<button id = "logout" ng-click="logoutUser()">
-			Logout
-		</button>
+<div id = "header">
+		<div id = "settings" ng-click="setting()">
+			&nbsp;<span>Settings</span>&nbsp;
+		</div>
+		<div id = "logout" ng-click="logoutUser()">
+			&nbsp;<span>Logout</span>&nbsp;
+		</div>
+		<div id="userList"></div>
 	</div>
-	<div class = 'myArea'>
-		<div id="team" align="center" >
+<div id="messageBoard" class="fill absolute table">
+	<div class = 'myArea' align="center">
+		<div id="team" align="center" >	
 			<div class = 'teamMate' ng-repeat = "player in lobbyRoom track by $index">
-				<div  class = "teamMateCircle" class tooltip = "{{player}}" >
-					{{player}}
+				<div class="teamMateCircle" class tooltip = "{{player}}" >
+					&nbsp;{{player}}&nbsp;
 				</div>
 			</div>
 		</div>
-		<div id = "invites" class = "invites" ng-repeat = "(id, invite) in invites">
-			<div id = "invite" class = "invite">invite from {{invite}} 
-				<div id="okBtn" >
-					<button  name = "{{invite}}" ng-click="acceptInvite(id)">
-							Ok
-					</button>	
+		<div id = "invites" class = "invites" ng-repeat = "(id, inviteWrapper) in invites">
+			<div id="inviteWrapper" class="inviteWrapper">
+				<div class="avatarWrapper"><div class="avatar"></div></div>
+				<div id = "invite" class = "invite">invite from {{invite}} 
 				</div>
-				<div id="cancelBtn">
-					<button  name = "{{invite}}" ng-click="removeInvite(invite)">
-						Cancel
-					</button>	
+				<div class="okBtnWrapper" >
+					<div class="okBtn"  name = "{{invite}}" ng-click="acceptInvite(id)"></div>		
+				</div>
+				<div class="cancelBtnWrapper">
+					<div class="cancelBtn" name = "{{invite}}" ng-click="removeInvite(invite)"></div>	
 				</div>
 			</div>
+			
 		</div>
 		<div id="startGame" align="center" ng-click="engageUser()">
 			<div>Start Game!</div>
 		</div>		
 	</div>
 
-		<div id="message">
-			{{message}}
-		</div>
+	<div id="message">
+		{{message}}
+	</div>
+
 </div>
 <div id="serverStats" class="{{ animateClass }}">
 	<div id="title">
