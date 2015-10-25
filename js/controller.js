@@ -13,6 +13,10 @@ ludoControllers.controller('LoginCtrl', function ($scope, $rootScope, $location,
 		console.log('Redirecting to home');
 		$location.path('/lobby');
 	});
+
+	if(username)
+		$scope.register(username);
+
 });
 
 ludoControllers.controller('LobbyCtrl', function ($scope, socket, $location, Authenticate) {
